@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plan_Level__c</fullName>
+    <label>Plan Level</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Bronze Plan</fullName>
+                <default>false</default>
+                <label>Bronze Plan</label>
+            </value>
+            <value>
+                <fullName>Silver Plan</fullName>
+                <default>false</default>
+                <label>Silver Plan</label>
+            </value>
+            <value>
+                <fullName>Gold Plan</fullName>
+                <default>false</default>
+                <label>Gold Plan</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

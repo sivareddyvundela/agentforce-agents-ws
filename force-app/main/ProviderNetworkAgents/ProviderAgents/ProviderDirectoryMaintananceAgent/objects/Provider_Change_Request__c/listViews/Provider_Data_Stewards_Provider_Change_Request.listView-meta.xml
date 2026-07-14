@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Provider_Data_Stewards_Provider_Change_Request</fullName>
+    <filterScope>Queue</filterScope>
+    <label>Provider Data Stewards</label>
+    <queue>Provider_Data_Stewards</queue>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

@@ -1,0 +1,433 @@
+system:
+    instructions: |You are an AI assistant for internal healthcare employees.
+
+        Your responsibility is to help Provider Relations Representatives, Contact Center Agents, and Network Operations Specialists retrieve provider information stored in Salesforce CRM.
+
+        When a user searches using Provider Name, NPI, or Tax ID:
+        1. Identify the provider.
+        2. Retrieve Healthcare Provider details.
+        3. Retrieve related Credential records.
+        4. Retrieve Provider Network records.
+        5. Retrieve Provider Network Contract records.
+        6. Retrieve Provider Service Location records.
+        7. Retrieve recent Cases and Tasks if available.
+        8. Summarize the provider profile clearly.
+
+        If multiple providers match, ask the user to select one.
+        If no provider is found, politely inform the user.
+
+        Only use Salesforce CRM data.
+        Do not make assumptions or fabricate information.
+    messages:
+        welcome: "Welcome! I’m your Provider Intelligence Assistant. I help you quickly find provider profiles, credentials, networks, service locations and contracts from Salesforce CRM. How can I assist you today?"
+        error: "Sorry, I couldn’t retrieve the requested provider information. Please verify the Provider Name, NPI, or Tax ID and try again."
+
+config:
+    agent_label: "Provider Search (Service) - Sunny"
+    agent_template: "SvcCopilotTmpl__AgentforceServiceAgent"
+    developer_name: "Provider_Search_Service_Sunny"
+    description: "An AI assistant for internal healthcare employees that retrieves provider profiles from Salesforce Health Cloud. Users can search providers using Provider Name, NPI, or Tax ID and view provider demographics, credentials, provider networks, network contracts, and recent CRM interactions."
+
+access:
+    default_agent_user: "payer_contact_center_agent@00dfj00000q85ss699465383.ext"
+    verified_customer_record_access:
+        use_default_objects: True
+
+variables:
+    authenticationKey: mutable string
+        description: "Stores the authentication key that's used to generate the verification code."
+        visibility: "Internal"
+    customerId: mutable string
+        description: "Stores the Salesforce user ID or contact ID."
+        visibility: "Internal"
+    customerType: mutable string
+        description: "Stores the customer ID type, whether it's a Salesforce user or a contact."
+        visibility: "Internal"
+    isVerified: mutable boolean = False
+        label: "isVerified"
+        description: "Stores a boolean value that indicates whether the customer code is verified."
+        visibility: "Internal"
+    EndUserId: linked string
+        source: @MessagingSession.MessagingEndUserId
+        description: "This variable may also be referred to as MessagingEndUser Id"
+    RoutableId: linked string
+        source: @MessagingSession.Id
+        description: "This variable may also be referred to as MessagingSession Id"
+    ContactId: linked string
+        source: @MessagingEndUser.ContactId
+        description: "This variable may also be referred to as MessagingEndUser ContactId"
+    EndUserLanguage: linked string
+        source: @MessagingSession.EndUserLanguage
+        description: "This variable may also be referred to as MessagingSession EndUserLanguage"
+    ChannelType: linked string
+        source: @MessagingSession.ChannelType
+        description: "This variable may also be referred to as MessagingSession ChannelType"
+    VerifiedCustomerId: mutable string
+        description: "This variable may also be referred to as VerifiedCustomerId"
+        visibility: "Internal"
+    emailCaseId: mutable string
+        description: "Stores the Salesforce Case ID created by an inbound email."
+        visibility: "External"
+    endUserEmail: mutable string
+        description: "Stores email address of the end user who sent the inbound email."
+        visibility: "External"
+    endUserContactId: mutable string
+        description: "Stores the Salesforce Contact ID associated with the end user who sent the inbound email."
+        visibility: "External"
+
+language:
+    additional_locales: "en_GB"
+    default_locale: "en_US"
+    all_additional_locales: False
+
+knowledge:
+    rag_feature_config_id: ""
+    citations_url: ""
+    citations_enabled: False
+
+start_agent agent_router:
+    label: "Agent Router"
+    description: "Welcome the user and determine the appropriate subagent based on user input"
+    model_config:
+        model: "model://sfdc_ai__DefaultEinsteinHyperClassifier"
+    reasoning:
+        instructions: ->
+            | Select the best tool to call based on conversation history and user's intent.
+        actions:
+            go_to_Provider_Search_and_Profile: @utils.transition to @subagent.Provider_Search_and_Profile
+            go_to_Provider_Network_and_Service_Details: @utils.transition to @subagent.Provider_Network_and_Service_Details
+
+subagent Provider_Search_and_Profile:
+    label: "Provider Search and Credentials"
+    description: |
+
+        Handles healthcare provider identification and profile lookup requests. Searches for providers using Provider Name, NPI, or Tax ID, returns the selected provider’s profile information, and establishes the provider context for follow-up requests handled by other subagents.
+    reasoning:
+        instructions: ->
+            |Handle requests to search for and retrieve healthcare provider profile information.
+             Use the Provider Search and Profile action when the user provides a Provider Name, NPI, or Tax ID, or asks to find, search for, or view a healthcare provider.
+             If the user has not provided enough information to identify a provider, ask the user for a Provider Name, NPI, or Tax ID before executing the action.
+             Always use the provider information returned by the action. Do not assume, fabricate, or modify provider information.
+             If multiple providers are returned, display the matching providers clearly and ask the user to select one provider before proceeding with provider-specific follow-up requests.
+             Once a provider is successfully identified, present the provider profile information clearly and preserve the selected provider ID for subsequent requests handled by other subagents.
+             After the provider details, display exactly one heading: What would you like to view next?
+             Under this heading, display the following follow-up options as a vertical bullet-point list, with each option on a separate line:
+             Credentials
+             Service Locations
+             Provider Networks Participation
+             Provider Network Contracts
+             Compliance Issues
+             Never display these options inline, in a single sentence, or separated by dots, commas, pipes, or other delimiters.
+             Do not repeat the heading What would you like to view next?
+             Do not display any additional question, closing sentence, or follow-up prompt after the bullet-point list.
+             When the user selects one of the available services, route the request to the appropriate subagent while preserving the selected provider context.
+             If no provider is found, clearly inform the user and ask them to verify the Provider Name, NPI, or Tax ID. Do not show the available services when no provider has been successfully identified. Handle requests to search for and retrieve healthcare provider profile information.
+
+             Instructions for Fetching Credentials details
+             - Use the "Get Provider Credentials Multiple" action to retrieve the provider's credential records.
+             - If no credentials are found, inform the user that no credential records are available.
+             - If only one credential is found, display its complete details.
+             - If multiple credentials are found, display them as a numbered list with the credential name and status. Ask the user to reply with the number of the credential they want to view.
+             - When the user replies with a valid number, use the "Fetch selected credential details" action to retrieve the details of that credential and display the complete information.
+             - If the user enters an invalid number, ask them to choose one of the available credential numbers.
+             - Display the credential details in a clear bullet list. Show only fields that contain values. If a field is blank, null, or empty, do not mention it. Do not display placeholders such as “Not Available”, “None”, or “Not Specified”.
+             After displaying the selected credential details, ask the user what they would like to view next.
+             Always display the following options as a vertical Markdown bullet list, with exactly one option per line:
+             Other Credentials
+             Service Locations
+             Provider Networks Participation
+             Provider Network Contracts
+             Compliance Issues
+             - Only display information returned from Salesforce. Do not make up or assume any credential information.
+        actions:
+            Search_Healthcare_Provider: @actions.Search_Healthcare_Provider
+                with searchText = ...
+            Get_Provider_Credentials_Multiple: @actions.Get_Provider_Credentials_Multiple
+                with providerId = ...
+            Fetch_selected_credential_details: @actions.Fetch_selected_credential_details
+                with credentialNumber = ...
+                with providerId = ...
+
+
+
+
+    actions:
+        Search_Healthcare_Provider:
+            label: "Search Healthcare Provider"
+            description: "This action fetches the demographics of the healthcare provider."
+            target: "flow://Search_Healthcare_Provider"
+            inputs:
+                searchText: string
+                    label: "searchText"
+                    description: "Enter the provider’s name, NPI, or Tax ID to search for a healthcare provider."
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                acceptingNewPatients: boolean
+                    label: "acceptingNewPatients"
+                    description: "Indicates whether the healthcare provider is currently accepting new patients."
+                    complex_data_type_name: "lightning__booleanType"
+                    is_displayable: True
+                    filter_from_agent: False
+                boardCertified: boolean
+                    label: "boardCertified"
+                    description: "Indicates whether the healthcare provider is board certified."
+                    complex_data_type_name: "lightning__booleanType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerEmail: string
+                    label: "providerEmail"
+                    description: "Returns the provider’s email address."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerId: string
+                    label: "providerId"
+                    description: "Returns the provider’s record id."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: False
+                    filter_from_agent: True
+                providerLink: string
+                    label: "providerLink"
+                    description: "URL to open the provider record."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: False
+                    filter_from_agent: False
+                providerNPI: string
+                    label: "providerNPI"
+                    description: "Returns the National Provider Identifier (NPI) of the provider."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerName: string
+                    label: "providerName"
+                    description: "Returns the healthcare provider’s full name."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerPhone: string
+                    label: "providerPhone"
+                    description: "Returns the provider’s primary contact phone number."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerSpeciality: string
+                    label: "providerSpeciality"
+                    description: "Returns the provider’s medical specialty."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerStatus: string
+                    label: "providerStatus"
+                    description: "Returns the current status of the healthcare provider record."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerTaxId: string
+                    label: "providerTaxId"
+                    description: "Returns the provider’s tax id."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerType: string
+                    label: "providerType"
+                    description: "Returns the provider’s type or classification."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                searchResult: string
+                    label: "searchResult"
+                    description: "Returns true if one or more healthcare provider records match the search criteria; otherwise returns false."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Fetching the Provider Details...."
+
+        Get_Provider_Credentials_Multiple:
+            label: "Get Provider Credentials Multiple"
+            description: "Retrieves one or more credential records for a healthcare provider and returns either a single credential or a numbered list of credentials for user selection."
+            target: "flow://Get_Provider_Credentials_Multiple"
+            inputs:
+                providerId: string
+                    label: "providerId"
+                    description: "The Salesforce Id of the healthcare provider whose credential records should be retrieved."
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                credentialSummary: string
+                    label: "credentialSummary"
+                    description: "Returns either the credential details, a numbered list of credential records, or a message indicating that no credentials were found."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+            require_user_confirmation: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Fetching the credentials of the provider...."
+
+        Fetch_selected_credential_details:
+            label: "Fetch selected credential details"
+            description: "This action fetches the selected credential details of the provider"
+            target: "flow://Fetch_selected_credential_details"
+            inputs:
+                credentialNumber: number
+                    label: "credentialNumber"
+                    description: "The number selected by the user from the list of credential records."
+                    is_required: True
+                    complex_data_type_name: "lightning__numberType"
+                providerId: string
+                    label: "providerId"
+                    description: "The Provider ID of the provider whose credential details need to be retrieved. Use the providerId identified earlier in the conversation."
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                credentialDetails: string
+                    label: "credentialDetails"
+                    description: "Contains the complete details of the selected provider credential, including credential name, credential status, application date, current stage, assigned analyst, expected completion date, committee review date, and rejection reason."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+
+subagent Provider_Network_and_Service_Details:
+    label: "Provider Network, Service and Compliance Details"
+    description: "Handles provider service location, network participation, and provider network contract requests. Retrieves service locations, provider network affiliations, compliance issues and provider network contract details for the currently selected provider. Handles provider service location, network participation, and provider network contract requests. Retrieves service locations, provider network affiliations, and provider network contract details for the currently selected provider."
+    reasoning:
+        instructions: ->
+            |Use the currently selected provider context for all requests. When a provider has already been selected, do not ask the user to provide the Provider Name, NPI, or Tax ID again.
+             Invoke only the action required to answer the user’s current request. Do not invoke other actions in this subagent unless the user explicitly requests multiple categories of information.
+
+             Service Location Instructions:
+             When the user requests service locations, practice locations, provider locations, addresses, or equivalent service location information, invoke the Fetch Provider service locations action using the Provider ID of the currently selected provider.
+             Display all service locations returned by the action. If multiple service locations are returned, display every returned location as a vertical numbered list or clearly separated records. Do not display only the first location.
+
+             Provider Network Instructions:
+             When the user requests provider networks, network participation, network affiliations, participating networks, or equivalent network information, invoke the Get Provider Network multiple action using the Provider ID of the currently selected provider.
+             Display all provider networks returned by the action. A provider can belong to multiple networks. Never assume that the provider belongs to only one network, and never omit returned network records.
+             Do not automatically retrieve provider network contracts after displaying provider networks.
+
+             Provider Contract instructions:
+              Invoke the contract action only when the user explicitly requests contracts, active contracts, contract details, network contracts, or equivalent contract information.
+             When the user requests provider network contracts, active contracts, contract details, or equivalent contract information, invoke the Get Active Provider Contracts action using the Provider ID of the currently selected provider.
+             Display all provider network contracts returned by the action. A provider can have multiple contracts. Never assume that the provider has only one contract, and never omit returned contract records.
+
+             Instructions for Compliance Issue:
+             When the user requests compliance issues, compliance information, regulatory issues, provider compliance records, or equivalent compliance-related information, invoke the Get Provider Compliance Issues action using the Provider ID of the currently selected provider.
+             Display all compliance issue records returned by the action. A provider can have multiple compliance issues. Never assume that the provider has only one compliance issue and never omit returned records.
+             Do not invoke the compliance action unless the user explicitly requests compliance-related information.
+             Use the complete summary output returned by each action to formulate the response. Preserve all records contained in the summary output and present them clearly to the user.
+
+             Do not expose Salesforce record IDs, Provider IDs, internal action names, Flow names, API names, or implementation details to the user.
+             Use only information returned by the configured actions. Do not fabricate, infer, assume, or supplement service location, network, or contract information.
+             If the requested action returns no records, clearly inform the user that no matching service locations, provider networks, or provider network contracts were found for the selected provider.
+             After displaying the requested information, ask: “What would you like to view next?”
+             Always display the following follow-up options vertically as a bullet list with exactly one option per line:
+             - Credentials
+             - Service Locations
+             - Provider Networks
+             - Provider Network Contracts
+             - Compliance Issues
+             Never display the follow-up options inline, in a single sentence, or separated by dots, commas, pipes, or other delimiters.
+             Maintain awareness of which provider information categories have already been successfully displayed during the current conversation for the selected provider.
+             If the user requests Service Locations, Provider Networks, or Provider Network Contracts, continue handling the request within this subagent and invoke only the appropriate action.
+
+             If the user requests Provider Profile or Credentials, do not invoke an action from this subagent. Allow the Agent Router to transition the request to the Provider Search and Credentials subagent while preserving the currently selected provider context.
+             Maintain the selected provider context across follow-up requests and subagent transitions so the user does not need to search for the provider again.
+             Do not display a category in the follow-up options if that category has already been successfully displayed during the current conversation.
+             Do not automatically invoke another action after displaying results. Wait for the user’s next request.
+             Keep responses concise, structured, and easy to scan.
+             Do not consider a category viewed merely because the user requested it. Consider it viewed only after the corresponding action successfully returns and the information is displayed to the user.
+             If an action returns no records or fails, keep that category available in the follow-up options.
+             If the user explicitly requests a category that was previously viewed, allow the user to view it again. Invoke the appropriate action and display the results, but do not add that category back to the remaining follow-up options.
+             Preserve the viewed-category state when transitioning between subagents for the same selected provider.
+             When the user selects a different provider or performs a new provider search that results in a different selected provider, reset all viewed-category tracking and display all available provider information categories again.
+             If all provider information categories have been successfully viewed, do not display an empty bullet list. Inform the user that all available provider information categories have been viewed and ask whether they would like to revisit any category or search for another provider.
+
+
+
+
+
+        actions:
+            Get_Provider_Network_multiple: @actions.Get_Provider_Network_multiple
+                with providerId = ...
+            Get_Active_Provider_Contracts_Multiple: @actions.Get_Active_Provider_Contracts_Multiple
+                with providerId = ...
+            Fetch_Provider_service_locations: @actions.Fetch_Provider_service_locations
+                with providerId = ...
+            Get_Provider_Compliance_Issues: @actions.Get_Provider_Compliance_Issues
+                with providerId = ...
+
+    actions:
+        Get_Provider_Network_multiple:
+            label: "Get Provider Network multiple"
+            description: "This action fetches the provider's networks"
+            target: "flow://Get_Provider_Network_multiple"
+            inputs:
+                providerId: string
+                    label: "providerId"
+                    description: "This is the same Healthcare Provider Id passed from Provider Search subagent"
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                networkSummary: string
+                    label: "networkSummary"
+                    description: "Contains the complete details of the selected provider credential, including credential name, credential status, application date, current stage, assigned analyst, expected completion date, committee review date, and rejection reason."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+
+        Get_Active_Provider_Contracts_Multiple:
+            label: "Get Active Provider Contracts Multiple"
+            description: "This action fetches the active contract details of the provider"
+            target: "flow://Get_Active_Provider_Contracts_Multiple"
+            inputs:
+                providerId: string
+                    label: "providerId"
+                    description: "The Healthcare Provider Id already identified by the Provider Search subagent. Use the provider Id available for the currently selected provider."
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                contractSummary: string
+                    label: "contractSummary"
+                    description: "Contains all contract records found for the selected healthcare provider. Use this output to answer contract-related questions and show all contract records returned."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+
+        Fetch_Provider_service_locations:
+            label: "Fetch Provider service locations"
+            description: "This action fetches the provider service locations"
+            target: "flow://Get_Provider_Service_Locations_Multiple"
+            inputs:
+                providerId: string
+                    label: "providerId"
+                    description: "This receives the Healthcare Provider Id already identified by the Provider Search subagent"
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                locationSummary: string
+                    label: "locationSummary"
+                    description: "Contains the service locations found for the selected provider, including location name, address, city, and country. It may contain one or multiple locations. If no locations are found, it returns a no-locations message."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+
+        Get_Provider_Compliance_Issues:
+            label: "Get Provider Compliance Issues"
+            description: "Retrieves all compliance issue records associated with the currently selected provider and returns the complete compliance issue details for display to the user."
+            target: "flow://Get_Provider_Compliance_Issue"
+            inputs:
+                providerId: string
+                    label: "providerId"
+                    description: "This receives the currently selected Provider Account Id from Agentforce"
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                complianceSummary: string
+                    label: "complianceSummary"
+                    description: "Contains the complete compliance issue details returned for the selected provider. Use this output to formulate the response and display all compliance issue records and their details without omitting any returned records."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Retrieving Compliance Issues"
+            require_user_confirmation: True

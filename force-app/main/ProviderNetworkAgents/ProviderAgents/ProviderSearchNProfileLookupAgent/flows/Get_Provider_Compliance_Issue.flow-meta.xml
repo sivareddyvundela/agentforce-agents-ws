@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Assign_No_issues</name>
+        <label>Assign No issues</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>complianceSummary</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>No compliance issues were found for the selected provider.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Build_Compliance_Summary</name>
+        <label>Build Compliance Summary</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>complianceSummary</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>CurrentComplianceIssueSummary</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Compliance_Issues</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Compliance_Issues_Found</name>
+        <label>Compliance Issues Found?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Assign_No_issues</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Found</defaultConnectorLabel>
+        <rules>
+            <name>Issues_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Provider_Compliance_Issue</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Compliance_Issues</targetReference>
+            </connector>
+            <label>Issues Found</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>CurrentComplianceIssueSummary</name>
+        <dataType>String</dataType>
+        <expression>&quot;Compliance Issue: &quot; &amp; {!Loop_Compliance_Issues.Name} &amp; BR() &amp;
+&quot;Title: &quot; &amp;{!Loop_Compliance_Issues.Issue_Title__c} &amp; BR() &amp;
+&quot;Type: &quot; &amp; TEXT({!Loop_Compliance_Issues.Compliance_Type__c}) &amp; BR() &amp;
+&quot;Status: &quot; &amp; TEXT({!Loop_Compliance_Issues.Status__c}) &amp; BR() &amp;
+&quot;Severity: &quot; &amp; TEXT({!Loop_Compliance_Issues.Severity__c}) &amp; BR() &amp;
+&quot;Identified Date: &quot; &amp; TEXT({!Loop_Compliance_Issues.Identified_date__c}) &amp; BR() &amp;
+&quot;Resolution Due Date: &quot; &amp; TEXT({!Loop_Compliance_Issues.Resolution_Due_Date__c}) &amp; BR() &amp; BR()</expression>
+    </formulas>
+    <interviewLabel>Get Provider Compliance Issue {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Get Provider Compliance Issue</label>
+    <loops>
+        <name>Loop_Compliance_Issues</name>
+        <label>Loop Compliance Issues</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Provider_Compliance_Issue</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Build_Compliance_Summary</targetReference>
+        </nextValueConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Provider_Compliance_Issue</name>
+        <label>Get Provider Compliance Issue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Compliance_Issues_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Healthcare_Provider__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>providerId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Provider_Compliance_Issues__c</object>
+        <sortField>Identified_date__c</sortField>
+        <sortOrder>Desc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Provider_Compliance_Issue</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>complianceSummary</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>This receives the currently selected Provider Account Id from Agentforce</description>
+        <name>providerId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

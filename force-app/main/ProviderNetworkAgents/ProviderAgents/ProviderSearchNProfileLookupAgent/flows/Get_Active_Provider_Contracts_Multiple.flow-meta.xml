@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Assign_no_contracts_path</name>
+        <label>Assign no contracts path</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>contractSummary</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>No Contracts were found for the selected provider.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Build_contract_Summary</name>
+        <label>Build contract Summary</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>contractSummary</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>contractSummaryFormatted</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_through_Provider_Contracts</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Increment_Contract_Counter</name>
+        <label>Increment Contract Counter</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>contractCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Build_contract_Summary</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Provider_Contracts_Found</name>
+        <label>Provider Contracts Found?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Assign_no_contracts_path</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Contracts Not Found</defaultConnectorLabel>
+        <rules>
+            <name>Contracts_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>contractCount</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <label>Contracts Found</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>contractSummaryFormatted</name>
+        <dataType>String</dataType>
+        <expression>{!contractSummary} &amp;
+TEXT({!contractCount}) &amp;
+&quot;. Contract Record: &quot; &amp;
+{!Loop_through_Provider_Contracts.Name} &amp;
+BR() &amp;
+&quot;Healthcare Payer: &quot; &amp;
+{!Loop_through_Provider_Contracts.HealthcarePayerNetwork.Name} &amp;
+&quot;Status: &quot; &amp;
+TEXT({!Loop_through_Provider_Contracts.Status__c}) &amp;
+&quot;Start Date: &quot; &amp;
+TEXT({!Loop_through_Provider_Contracts.StartDate}) &amp;
+BR() &amp;
+&quot;End Date: &quot; &amp;
+TEXT({!Loop_through_Provider_Contracts.EndDate}) &amp;
+BR() &amp;
+BR()</expression>
+    </formulas>
+    <interviewLabel>Get Active Provider Contracts Multiple {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Get Active Provider Contracts Multiple</label>
+    <loops>
+        <name>Loop_through_Provider_Contracts</name>
+        <label>Loop through Provider Contracts</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Active_Provider_Contracts</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Increment_Contract_Counter</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Provider_Contracts_Found</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Active_Provider_Contracts</name>
+        <label>Get Active Provider Contracts</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_through_Provider_Contracts</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>HealthcareProviderId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>providerId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Active</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>ProviderNetworkContract</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Active_Provider_Contracts</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>contractCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+    </variables>
+    <variables>
+        <name>contractSummary</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>providerId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

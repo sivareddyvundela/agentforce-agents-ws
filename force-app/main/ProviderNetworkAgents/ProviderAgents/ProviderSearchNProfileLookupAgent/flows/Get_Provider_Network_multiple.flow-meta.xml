@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Build_Network_Summary</name>
+        <label>Build Network Summary</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>networkSummary</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>networkSummaryFormatted</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_through_Provider_Networks</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Increment_Network_Counter</name>
+        <label>Increment Network Counter</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>networkCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Build_Network_Summary</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_No_Networks_Found</name>
+        <label>Set No Networks Found</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>networkSummary</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>No provider network participation records were found for the selected provider</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Provider_Networks_Found</name>
+        <label>Provider Networks Found?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Set_No_Networks_Found</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Network Found</defaultConnectorLabel>
+        <rules>
+            <name>Networks_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>networkCount</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <label>Networks Found</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>networkSummaryFormatted</name>
+        <dataType>String</dataType>
+        <expression>{!networkSummary} &amp;
+TEXT({!networkCount}) &amp;
+&quot;. Network Name: &quot; &amp;
+{!Loop_through_Provider_Networks.Name} &amp;
+BR() &amp;
+&quot;Active: &quot; &amp;
+IF(
+  {!Loop_through_Provider_Networks.vlocity_ins__IsActive__c},
+   &quot;Yes&quot;,
+   &quot;No&quot;
+) &amp;
+BR() &amp;
+&quot;Line of Business: &quot; &amp;
+TEXT({!Loop_through_Provider_Networks.vlocity_ins__LineofBusiness__c}) &amp;
+BR() &amp;
+&quot;Effective Start Date: &quot; &amp;
+TEXT({!Loop_through_Provider_Networks.vlocity_ins__EffectiveStartDate__c}) &amp;
+BR() &amp;
+&quot;Effective End Date: &quot; &amp;
+TEXT({!Loop_through_Provider_Networks.vlocity_ins__EffectiveEndDate__c}) &amp;
+BR() &amp;
+BR()</expression>
+    </formulas>
+    <interviewLabel>Get Provider Network multiple {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Get Provider Network multiple</label>
+    <loops>
+        <name>Loop_through_Provider_Networks</name>
+        <label>Loop through Provider Networks</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Provider_Networks</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Increment_Network_Counter</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Provider_Networks_Found</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Provider_Networks</name>
+        <label>Get Provider Networks</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_through_Provider_Networks</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Healthcare_Provider__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>providerId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>vlocity_ins__ProviderNetwork__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Provider_Networks</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>networkCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+    </variables>
+    <variables>
+        <name>networkSummary</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>This is the same Healthcare Provider Id passed from Provider Search subagent</description>
+        <name>providerId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

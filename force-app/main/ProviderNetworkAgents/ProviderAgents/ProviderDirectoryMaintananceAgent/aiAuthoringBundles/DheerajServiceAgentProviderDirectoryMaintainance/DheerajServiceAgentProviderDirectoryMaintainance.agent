@@ -1,0 +1,233 @@
+system:
+    instructions: "You are an AI Agent."
+    messages:
+        welcome: |
+            Hi, I'm an AI service assistant. How can I help you?
+        error: "Sorry, it looks like something has gone wrong."
+
+config:
+    agent_label: "DheerajServiceAgentProviderDirectoryMaintainance"
+    agent_template: "SvcCopilotTmpl__AgentforceServiceAgent"
+    developer_name: "DheerajServiceAgentProviderDirectoryMaintainance"
+    description: "Deliver personalized customer interactions with an autonomous AI agent. Agentforce Service Agent intelligently supports your customers with common inquiries and escalates complex issues."
+
+access:
+    default_agent_user: "payer_contact_center_agent@00dfj00000q85ss699465383.ext"
+    verified_customer_record_access:
+        use_default_objects: True
+
+variables:
+    authenticationKey: mutable string
+        description: "Stores the authentication key that's used to generate the verification code."
+        visibility: "Internal"
+    customerId: mutable string
+        description: "Stores the Salesforce user ID or contact ID."
+        visibility: "Internal"
+    customerType: mutable string
+        description: "Stores the customer ID type, whether it's a Salesforce user or a contact."
+        visibility: "Internal"
+    isVerified: mutable boolean = False
+        label: "isVerified"
+        description: "Stores a boolean value that indicates whether the customer code is verified."
+        visibility: "Internal"
+    EndUserId: linked string
+        source: @MessagingSession.MessagingEndUserId
+        description: "This variable may also be referred to as MessagingEndUser Id"
+    RoutableId: linked string
+        source: @MessagingSession.Id
+        description: "This variable may also be referred to as MessagingSession Id"
+    ContactId: linked string
+        source: @MessagingEndUser.ContactId
+        description: "This variable may also be referred to as MessagingEndUser ContactId"
+    EndUserLanguage: linked string
+        source: @MessagingSession.EndUserLanguage
+        description: "This variable may also be referred to as MessagingSession EndUserLanguage"
+    ChannelType: linked string
+        source: @MessagingSession.ChannelType
+        description: "This variable may also be referred to as MessagingSession ChannelType"
+    VerifiedCustomerId: mutable string
+        description: "This variable may also be referred to as VerifiedCustomerId"
+        visibility: "Internal"
+    emailCaseId: mutable string
+        description: "Stores the Salesforce Case ID created by an inbound email."
+        visibility: "External"
+    endUserEmail: mutable string
+        description: "Stores email address of the end user who sent the inbound email."
+        visibility: "External"
+    endUserContactId: mutable string
+        description: "Stores the Salesforce Contact ID associated with the end user who sent the inbound email."
+        visibility: "External"
+    NewVariable: mutable list[string]
+        label: "NewVariable"
+        visibility: "Internal"
+
+language:
+    additional_locales: "en_GB"
+    default_locale: "en_US"
+    all_additional_locales: False
+
+knowledge:
+    rag_feature_config_id: ""
+    citations_url: ""
+    citations_enabled: False
+
+start_agent agent_router:
+    label: "Agent Router"
+    description: "Welcome the user and determine the appropriate subagent based on user input"
+    model_config:
+        model: "model://sfdc_ai__DefaultEinsteinHyperClassifier"
+    reasoning:
+        instructions: ->
+            | Select the best tool to call based on conversation history and user's intent.
+        actions:
+            go_to_Provider_Directory_Management: @utils.transition to @subagent.Provider_Directory_Management
+
+subagent Provider_Directory_Management:
+    label: "Provider Directory Management"
+    reasoning:
+        instructions: ->
+            |Always confirm the exact old value and new value with the user before submitting any change or report.
+             Always ask the external user for their name  before submitting any change or report. If the user is a provider updating their own information, also confirm they are speaking on behalf of that specific provider.
+             Never allow emergency or fast-lane publishing for any external user, provider or member — all external submissions must be routed for Provider Data Steward review, regardless of urgency.
+             If the person submitting is a member (not an authenticated provider updating their own record), always treat the submission as a report to be verified, not a confirmed fact — never state that the directory has been updated as a result of a member's report alone.
+             After submitting a request or report, always tell the user the current status and that it will be reviewed before taking effect.
+             Never state that a change is live or updated until its status is Published.
+             If a duplicate is flagged, tell the user clearly and do not proceed without their acknowledgment.
+             Only use data returned by the actions available to you — never guess or fabricate provider information.
+        actions:
+            SearchProviderByIdentifier: @actions.SearchProviderByIdentifier
+                with SearchTerm = ...
+            SubmitProviderChangeRequestUpdatedFlow: @actions.SubmitProviderChangeRequestUpdatedFlow
+                with EmergencyReason = ...
+                with FieldChanged = ...
+                with IsEmergency = ...
+                with NewValue = ...
+                with OldValue = ...
+                with ProviderId = ...
+                with SubmitterName = ...
+            ProviderChangeRequestStatus: @actions.ProviderChangeRequestStatus
+                with ChangeRequestId = ...
+            GetAuditHistory: @actions.GetAuditHistory
+                with ChangeRequestId = ...
+                with ProviderName = ...
+    description: "Use this topic when an external provider wants to update their own practice information, or when a member wants to report that a provider's listed address, phone, office hours, languages, accessibility, telehealth availability, or accepting-new-patients status appears incorrect."
+
+
+    actions:
+        SearchProviderByIdentifier:
+            label: "SearchProviderByIdentifier"
+            description: "Use this to find a provider by name, NPI, or Tax ID. Always call this first when a user wants to look up, update, or report on a provider."
+            target: "flow://SearchProviderByIdentifier"
+            inputs:
+                SearchTerm: string
+                    label: "SearchTerm"
+                    description: "The provider's name, NPI, or Tax ID being searched for."
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                RecordSummary: string
+                    label: "RecordSummary"
+                    description: "This is the summary of the record it has to be shown to the user"
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Fetching..."
+
+        SubmitProviderChangeRequestUpdatedFlow:
+            label: "SubmitProviderChangeRequestUpdatedFlow"
+            description: "Use this to submit a directory change or report for exactly one field on a provider. Only one field per call — if multiple fields need updating, call this once per field. Always retrieve the provider's current record first using SearchProviderByIdentifier and use the existing value as OldValue — never ask the user to state the current value. Only ask for NewValue. IsEmergency must always remain false for external users."
+            target: "flow://SubmitProviderChangeRequestUpdatedFlow"
+            inputs:
+                EmergencyReason: string
+                    label: "EmergencyReason"
+                    description: "Not used for external submissions."
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+                FieldChanged: string
+                    label: "FieldChanged"
+                    description: "Which field is being changed — Address, Phone, Office Hours, Languages, Accessibility, Telehealth, or Accepting New Patients."
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+                IsEmergency: boolean
+                    label: "IsEmergency"
+                    description: "Always false for external users — this option is not available externally"
+                    is_required: False
+                    complex_data_type_name: "lightning__booleanType"
+                NewValue: string
+                    label: "NewValue"
+                    description: "The new value requested, confirmed with the user"
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+                OldValue: string
+                    label: "OldValue"
+                    description: "The provider's current value, retrieved from their existing record ❌ Unchecked"
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+                ProviderId: string
+                    label: "ProviderId"
+                    description: "The record ID of the provider, retrieved from a prior search — never typed by the user."
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+                SubmitterName: string
+                    label: "SubmitterName"
+                    description: "This is the submittername that has to collect from the user"
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                CreateChangeRequestId: string
+                    label: "CreateChangeRequestId"
+                    description: "Internal reference ID for this request this has to show to the user"
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Fetching...."
+
+        ProviderChangeRequestStatus:
+            label: "ProviderChangeRequestStatus"
+            description: "Use this when a user asks about the status of a request they submitted. Always include: which field was requested to change, the old value, the new value, when it was submitted, and the current status in plain language (under review, approved and applied, not approved, or published immediately pending review). Never state that a change is live until status is Published or Emergency-Published."
+            target: "flow://NewChangeRequestStatus"
+            inputs:
+                ChangeRequestId: string
+                    label: "ChangeRequestId"
+                    description: "Specific request Id if already known from earlier in this conversation."
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                StatusSummaryText: string
+                    label: "StatusSummaryText"
+                    description: "This is the summary text of the provider change request It is mandetory to show to the user!!!"
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Fetching..."
+        GetAuditHistory:
+            label: "GetAuditHistory"
+            description: |
+        
+                Use this if a user asks to see what has changed for a provider over time. Only share publicly appropriate summary information, not internal approval details.
+            target: "flow://GetAuditHistory"
+            inputs:
+                ChangeRequestId: string
+                    label: "ChangeRequestId"
+                  description: |"Specific request Id if already known from earlier in this conversation."
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+                ProviderName: string
+                    label: "ProviderName"
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                AuditHistory: list[object]
+                    label: "AuditHistory"
+                    complex_data_type_name: "lightning__recordInfoType"
+                    is_displayable: False
+                    filter_from_agent: False
+                Summary: string
+                    label: "Summary"
+                    description: "This is the summary of the audit that should display to the user"
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
