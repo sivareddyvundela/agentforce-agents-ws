@@ -1,111 +1,115 @@
-# Agentforce Project
+# Provider Enrollment Agent
 
-This Salesforce DX project contains a sample agent called Local Info Agent that you could, for example, embed in a resort's web site. The agent provides local weather updates, shares information about local events, and helps guests with facility hours. 
+An Agentforce Employee Agent that helps enroll healthcare providers into the network. When a user starts a conversation, the agent immediately renders a custom enrollment form, collects the provider's demographic and credentialing details plus a supporting document, and creates an `Enrollment__c` record in Salesforce.
 
-The agent demonstrates:
+## Table of Contents
 
-- Three types of subagents (Invocable Apex, Prompt Template, and Flow).
-- Mutable variables.
-- Flow control with `available when`.
-- Deterministic branching with `if/else` in reasoning instructions.
+- [Overview](#overview)
+- [Key Capabilities](#key-capabilities)
+- [How It Works](#how-it-works)
+- [What's Inside This Folder](#whats-inside-this-folder)
+- [Data Model](#data-model)
+- [Try It Out](#try-it-out)
+- [Deploy](#deploy)
 
-## Prerequisites
+## Overview
 
-- **Salesforce Developer Edition (DE)** org. Get a free one at [developer.salesforce.com/signup](https://developer.salesforce.com/signup). 
-- **Salesforce CLI** (`sf`). Download and install it from [developer.salesforce.com/tools/sfdxcli](https://developer.salesforce.com/tools/sfdxcli).  See the [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm) for more detailed information. 
-- **VS Code** with the **Salesforce Extensions** pack and the **Agentforce DX** extension. See [Install Pro-Code Tools](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-dx-set-up-env.html) for details. 
+**Purpose:** Streamline onboarding of new healthcare providers by capturing their demographic and credentialing information (name, contact details, NPI number, license number, specialty, and network) along with a supporting document, then persisting the submission as a new `Enrollment__c` record and confirming success to the user.
 
-After you get a DE org and set up your tools, authorize the org so you can start working with it.  Open VS Code and use the **SFDX: Authorize an Org** VS Code command from the Command Palette, or run this CLI command in VS Code's integrated terminal:
+The real agent in this folder is the **`Enrollment_agent_Simran`** bundle. It is built on the `EmployeeCopilot__AgentforceEmployeeAgent` template (agent type `AgentforceEmployeeAgent`) and is designed to run inside Agentforce agent windows in the flow of work.
 
-```bash
-sf org login web --alias my-de-org --set-default
-```
-Log in to the browser that opens using your DE credentials.  
+## Key Capabilities
 
-## Configure Your Salesforce DX Project
+- Immediately presents a custom **Enrollment Details** form (the `providerEnrollment` Lightning Web Component) on conversation start, without greeting or prompting the user for fields conversationally.
+- Collects provider demographics: First Name, Last Name, Phone, Email, NPI Number, License Number, Specialist (picklist), and Network.
+- Accepts an uploaded supporting document (PDF or PNG, up to ~4.5 MB) as base64 content.
+- Creates an `Enrollment__c` record from the submitted data via an Apex invocable action.
+- Attaches the uploaded document to the newly created enrollment record.
+- Returns a confirmation message (and record outcome) back to the user once the enrollment is submitted.
 
-Your new Salesforce DX project is ready to use.  
+## How It Works
 
-But you can further configure it by editing the `sfdx-project.json` file. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file. 
+**Start agent — `Agent Router`:** The conversation begins at the `agent_router` start agent, which welcomes the user and routes to the appropriate subagent based on intent. It uses the classifier model `model://sfdc_ai__DefaultEinsteinHyperClassifier` and transitions to the `Provider_demographics_check` subagent.
 
-## Enable Skills in Agentforce Vibes to Vibe Code Agents
+**Subagent — `Provider demographics check`:** This subagent handles new enrollment requests. Its instructions direct it to immediately invoke the enrollment action and render the custom form (no greeting, no field explanations, no questions), then wait for the user to submit the form before continuing.
 
-To vibe code agents using Agentforce Vibes, first open the Agentforce Vibes panel. Click the **Manage Skills, Rules, Workflows, and Hookss** icon, then the **Skills** tab, and ensure these skills are enabled:
+**Action — `Enrollment Creation`:** The subagent calls the `Enrollment_Creation` action, which targets `apex://EnrollmentCreationService`. The action takes a single required input, `enrollmentData`, typed as the complex data type `c__Enrollment_Details_Input`, and returns `enrollmentRecordId`, `isSuccess`, and `message` outputs.
 
-- `developing-agentforce`
-- `observing-agentforce`
-- `testing-agentforce`
+**Custom input UI — `providerEnrollment` LWC:** The `Enrollment_Details_Input` complex type is rendered by the `providerEnrollment` Lightning Web Component (master label "Enrollment Submission"), which is exposed to the `lightning__AgentforceInput` target. The component builds a Lightning form for all provider fields, offers a specialist combobox (Cardiology, Dermatology, Family Medicine, Internal Medicine, Neurology, Orthopedics, Pediatrics, Psychiatry), and provides a file upload. On file selection it enforces the ~4.5 MB limit, strips the data-URI prefix, and emits the field values plus the base64 document through a `valuechange` event.
 
-That's it!
+**Apex action — `EnrollmentCreationService`:** The `@InvocableMethod` `createEnrollment` (label "Create Provider Enrollment Record") maps the submitted `EnrollmentLightningTypesInput.EnrollmentInputFields` onto a new `Enrollment__c` record (First Name, Last Name, Phone, Email, NPI Number, License Number, Speciality, Network) and inserts it. On success, if a document was supplied it calls `attachDocument`, which creates a `ContentVersion` (base64-decoded) with `FirstPublishLocationId` set to the enrollment record so the `ContentDocumentLink` is created automatically. Results are returned as a list of `ProviderEnrollmentResult` (`isSuccess`, `enrollmentRecordId`, `message`), with per-record error messages surfaced on failure.
 
-### Use Other AI Tools
+> **Note on scaffolding:** This folder was scaffolded from a template and still contains leftover, unrelated sample files that are **not** part of the Provider Enrollment agent: `CheckWeather.cls`, `CurrentDate.cls`/`CurrentDateTest.cls`, `WeatherService.cls`/`WeatherServiceTest.cls`, the `Local_Info_Agent` bundle, the `Get_Resort_Hours` flow, the `Get_Event_Info` prompt template, and the `Resort_Admin`/`Resort_Agent` permission sets. They can be ignored or removed.
 
-If you prefer to use other AI tools, such as Claude Code or Cursor, copy these skills from the `sf-skills` GitHub repository to the appropriate directory in this DX project. Check your AI tool's documentation for the specific location and how to enable the skills.  
-
-- [`developing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/developing-agentforce)
-- [`observing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/observing-agentforce)
-- [`testing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/testing-agentforce)
-
-## Vibe Code the Sample Agent
-
-Salesforce agents use an Agent Script file as their blueprint. To vibe code an agent, you vibe code its Agent Script file. Agent Script files are part of the `AiAuthoringBundle` metadata type.
-
-Let's see how this works by vibe coding the Agent Script file associated with the sample Local Info Agent. Open up the `force-app/main/default/aiAuthoringBundle/Local_Info_Agent/Local_Info_Agent.agent` file in VS Code, then enter your prompts in the Agentforce Vibes chat box. For example, to learn more about how the agent is coded, ask questions like: 
-
-- _What does the Local Info Agent do?_
-- _What Apex classes does this agent use?_
-- _Does the agent use flows?_
-
-As you get more familiar with vibe coding a Salesforce agent, you can start making actual changes to the Agent Script file.
-
-## Preview the Agent in Simulated Mode
-
-You can preview how the agent works right in VS Code using the Agentforce DX panel. For now you must preview in _simulated mode_, because you haven't yet deployed the Apex classes, flow, or prompt template to your org. After you deploy, you can use _live mode_ in which the agent uses the actual Apex classes, etc.  In simulated mode, the Local Info Agent mocks the answers to your questions. 
-
-To preview in simulated mode, right-click the `Local_Info_Agent.agent` file and choose **AFDX: Preview This Agent**.  In the Agentforce DX panel that opens, click **Start Simulation**.  Then enter a question in the chat box at the bottom, such as `What's the weather like?`.  The agent simulates an answer. 
-
-## Agentforce-Ready Scratch Orgs
-
-This template includes a scratch org configuration file (`config/project-scratch-def.json`) that contains the required settings and features for creating an Agentforce-ready scratch org. 
-
-Here's an example of creating a scratch org using the file; it assumes you've already authorized the Dev Hub org with alias `DevHub`:
-
-```bash
-sf org create scratch --definition-file config/project-scratch-def.json --alias AgentScratchOrg --set-default --target-dev-hub DevHub
-```
-
-## What's Inside This DX Project?
-
-These are the interesting metadata components associated with the Local Info Agent. All the component source files are in the `force-app/main/default` package directory under their associated metadata directory, such as `classes` for Apex classes.
+## What's Inside This Folder
 
 | Component | Type | Purpose |
-|---|---|---|
-| `Local_Info_Agent.agent` | Agent Script | The agent definition — tools, reasoning, variables, and flow control. |
-| `CheckWeather` | Apex Class | Invocable Apex. Checks current weather conditions for a given location. |
-| `CurrentDate` | Apex Class | Invocable Apex. Returns the current date for use by the agent. |
-| `WeatherService` | Apex Class | Provides mock weather data for the resort. |
-| `Get_Event_Info` | Prompt Template | Retrieves local events.|
-| `Get_Resort_Hours` | Flow | Returns facility hours and reservation requirements. |
-| `Resort_Agent` | Permission Set | Agent user permissions (Einstein Agent license). |
-| `Resort_Admin` | Permission Set | Admin/developer Apex class access. |
-| `AFDX_Agent_Perms` | Permission Set Group | Bundles agent user permissions for assignment. |
-| `AFDX_User_Perms` | Permission Set Group | Bundles admin user permissions for assignment. |
+| --- | --- | --- |
+| `Enrollment_agent_Simran` | AI Authoring Bundle (`.agent`) | The real Provider Enrollment agent definition: Agent Router start agent, `Provider_demographics_check` subagent, and the `Enrollment_Creation` action. |
+| `EnrollmentCreationService` | Apex Class | Invocable action that creates the `Enrollment__c` record and attaches the uploaded document. |
+| `EnrollmentLightningTypesInput` | Apex Class | Defines the `EnrollmentInputFields` input type (provider fields + `contentDocumentId`/`fileName`) used by the action and LWC. |
+| `ProviderEnrollmentResult` | Apex Class | Output type returned by the action (`isSuccess`, `enrollmentRecordId`, `message`). |
+| `providerEnrollment` | Lightning Web Component | "Enrollment Submission" form rendered as the `c__Enrollment_Details_Input` agent input; captures provider details and document upload. |
+| `Enrollment__c` | Custom Object | Stores submitted enrollment records (auto-numbered `BE-{000000}`). |
+| `AFDX_Agent_Perms` | Permission Set Group | Bundles the permissions required by the Agentforce service agent. |
+| `AFDX_User_Perms` | Permission Set Group | Bundles the permissions required by Agentforce admin/builder users. |
+| `Local_Info_Agent`, `CheckWeather`, `WeatherService`, `CurrentDate`, `Get_Resort_Hours`, `Get_Event_Info`, `Resort_Admin`, `Resort_Agent` | Mixed (leftover) | Template scaffolding, not part of this agent (see note above). |
 
-## Next Steps
+## Data Model
 
-This README provides just a taste of working with Salesforce agents. Check out the [_Agentforce DX Developer Guide_](https://developer.salesforce.com/docs/einstein/genai/guide/agent-dx.html) which shows you how to:
+**`Enrollment__c`** — Custom object (label "Enrollment", plural "Enrollments"), Public read/write sharing, records named by AutoNumber format `BE-{000000}`.
 
-- Author an agent, which involves generating an authoring bundle, coding the Agent Script file, and publishing the agent to your org.
-- Preview and debug an agent.
-- Test an agent.
+Fields written or used by the enrollment flow:
 
-## Read All About It
+| Field | Type | Notes |
+| --- | --- | --- |
+| `First_Name__c` | Text(80) | Required. Provider first name. |
+| `Last_name__c` | Text(80) | Required. Provider last name. |
+| `Email__c` | Text(80) | Required. Provider email. |
+| `Phone__c` | Number(10,0) | Provider phone. |
+| `NPI_Number__c` | Text(10) | Required. National Provider Identifier. |
+| `License_Number__c` | Text(10) | Required. Provider license number. |
+| `Speciality__c` | Text(20) | Required. Provider specialty (set from the form's Specialist picklist). |
+| `Network__c` | Text(100) | Provider network. |
+| `Status__c` | Picklist | Restricted: New, Processing, Payment Processing, Finish Application, Completed. Field history tracked. |
+| `Plan_Level__c` | Picklist | Restricted: Bronze Plan, Silver Plan, Gold Plan. |
+| `Plan_Name__c` | Text(255) | Plan name. |
+| `Applicant_Name__c` | Lookup(Account) | Related applicant account. |
+| `Broker__c` | Lookup(Contact) | Related broker contact. |
+| `Prospect_Name__c` | Lookup(Contact) | Related prospect contact. |
+| `UCIN_External_ID__c` | Text(18), External ID, Unique | Cross-system external ID for integration tracking. |
 
-- [_Agentforce DX Developer Guide_](https://developer.salesforce.com/docs/einstein/genai/guide/agent-dx.html)
-- [_Agent Script_](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-script.html)
-- [_Agentforce Vibes Extension_](https://developer.salesforce.com/docs/platform/einstein-for-devs/guide/einstein-overview.html)
+Uploaded documents are stored as standard Salesforce Files (`ContentVersion`/`ContentDocument`) linked to the enrollment record. The Apex action currently maps First Name, Last Name, Phone, Email, NPI Number, License Number, Speciality, and Network from the form; the remaining fields above are available on the object for downstream processing.
 
-- [_Salesforce Extensions for VS Code_](https://developer.salesforce.com/docs/platform/sfvscode-extensions/guide)
-- [_Salesforce CLI Setup Guide_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [_Salesforce DX Developer Guide_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [_Salesforce CLI Command Reference_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+## Try It Out
+
+Open the agent in an Agentforce window and start a conversation. The enrollment form appears immediately. Example prompts:
+
+- _I want to enroll a new provider._
+- _Start a new provider enrollment._
+- _Enroll Dr. Jane Smith, NPI 1234567890, License AB12345, Cardiology, in the Premier network._ (then complete/submit the rendered form and attach a PDF or PNG)
+- _Add a new provider to the network and upload their credentialing document._
+
+After you submit the form, the agent creates the `Enrollment__c` record, attaches the document, and returns a confirmation message.
+
+## Deploy
+
+Deploy this folder to your org:
+
+```bash
+sf project deploy start -d force-app/main/ProviderNetworkAgents/ProviderAgents/ProviderEnrollmentAgent
+```
+
+Then assign the folder's two permission set groups:
+
+```bash
+# Agentforce runtime / service-agent user
+sf org assign permset --name AFDX_Agent_Perms
+
+# Admin / builder
+sf org assign permset --name AFDX_User_Perms
+```
+
+Assigning these groups grants all bundled object, field, Apex, and flow access — including the `providerEnrollment` LWC surface and the `Enrollment__c` object — so individual objects and classes do not need to be assigned separately.
+
+> **Template scaffolding:** The `AFDX_Agent_Perms` and `AFDX_User_Perms` groups currently include the leftover `Resort_Agent` / `Resort_Admin` permission sets from the template. Review the group membership and remove unrelated scaffolding as appropriate for your org.

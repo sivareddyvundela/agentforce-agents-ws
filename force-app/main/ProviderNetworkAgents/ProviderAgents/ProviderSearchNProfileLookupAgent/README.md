@@ -1,111 +1,112 @@
-# Agentforce Project
+# Provider Search & Profile Lookup Agent
 
-This Salesforce DX project contains a sample agent called Local Info Agent that you could, for example, embed in a resort's web site. The agent provides local weather updates, shares information about local events, and helps guests with facility hours. 
+An Agentforce (Service) agent that lets internal healthcare staff search for a healthcare provider by Name, NPI, or Tax ID and drill into the provider's full profile — credentials, provider networks, network contracts, service locations, and compliance issues — sourced entirely from Salesforce CRM.
 
-The agent demonstrates:
+## Table of Contents
 
-- Three types of subagents (Invocable Apex, Prompt Template, and Flow).
-- Mutable variables.
-- Flow control with `available when`.
-- Deterministic branching with `if/else` in reasoning instructions.
+- [Overview](#overview)
+- [Key Capabilities](#key-capabilities)
+- [How It Works](#how-it-works)
+- [What's Inside This Folder](#whats-inside-this-folder)
+- [Data Model](#data-model)
+- [Try It Out](#try-it-out)
+- [Deploy](#deploy)
 
-## Prerequisites
+## Overview
 
-- **Salesforce Developer Edition (DE)** org. Get a free one at [developer.salesforce.com/signup](https://developer.salesforce.com/signup). 
-- **Salesforce CLI** (`sf`). Download and install it from [developer.salesforce.com/tools/sfdxcli](https://developer.salesforce.com/tools/sfdxcli).  See the [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm) for more detailed information. 
-- **VS Code** with the **Salesforce Extensions** pack and the **Agentforce DX** extension. See [Install Pro-Code Tools](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-dx-set-up-env.html) for details. 
+**Purpose:** Help Provider Relations Representatives, Contact Center Agents, and Network Operations Specialists quickly identify a healthcare provider and look up their complete profile. The agent finds a provider from a search term, establishes that provider as the working context for the conversation, and then answers follow-up requests for the provider's credentials, contracts, network participation, service locations, and compliance issues.
 
-After you get a DE org and set up your tools, authorize the org so you can start working with it.  Open VS Code and use the **SFDX: Authorize an Org** VS Code command from the Command Palette, or run this CLI command in VS Code's integrated terminal:
+The agent is grounded strictly in Salesforce CRM / Health Cloud data. It does not assume, infer, or fabricate provider information, and it presents only fields that contain values.
 
-```bash
-sf org login web --alias my-de-org --set-default
-```
-Log in to the browser that opens using your DE credentials.  
+## Key Capabilities
 
-## Configure Your Salesforce DX Project
+- **Provider search** by Provider Name, NPI, or Tax ID, with disambiguation when multiple providers match.
+- **Provider profile summary** — name, NPI, Tax ID, specialty, type, status, phone, email, board-certification, and accepting-new-patients indicators.
+- **Credential lookup** — list a provider's credential records and drill into a selected credential's full detail (status, application date, current stage, assigned analyst, expected completion, committee review date, rejection reason).
+- **Provider network participation** — all networks the provider participates in (a provider can belong to multiple networks).
+- **Provider network contracts** — active contract details for the selected provider.
+- **Service locations** — all practice/service locations (name, address, city, country) for the provider.
+- **Compliance issues** — all compliance/regulatory records for the provider.
+- **Context preservation** — once a provider is selected, follow-up requests reuse that provider context without re-searching, and viewed categories are tracked so the follow-up menu stays relevant.
 
-Your new Salesforce DX project is ready to use.  
+## How It Works
 
-But you can further configure it by editing the `sfdx-project.json` file. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file. 
+**Real agent bundle:** `Provider_Search_Service_Sunny_1` (agent label *"Provider Search (Service) - Sunny"*), built on the `SvcCopilotTmpl__AgentforceServiceAgent` service template.
 
-## Enable Skills in Agentforce Vibes to Vibe Code Agents
+**Routing.** The `agent_router` start agent greets the user and classifies intent using the `sfdc_ai__DefaultEinsteinHyperClassifier` model, then transitions to one of two subagents:
 
-To vibe code agents using Agentforce Vibes, first open the Agentforce Vibes panel. Click the **Manage Skills, Rules, Workflows, and Hookss** icon, then the **Skills** tab, and ensure these skills are enabled:
+1. **Provider Search and Profile** (`Provider_Search_and_Profile`) — Handles provider identification and profile lookup. It searches with the user's term, and if multiple providers match it asks the user to pick one. Once a provider is identified it presents the profile and preserves the provider ID for downstream requests. This subagent also handles credential retrieval, including the two-step "list credentials → view a selected credential" flow.
 
-- `developing-agentforce`
-- `observing-agentforce`
-- `testing-agentforce`
+2. **Provider Network, Service and Compliance Details** (`Provider_Network_and_Service_Details`) — Operates on the already-selected provider context (never re-asking for search terms). It invokes exactly one action per request to return service locations, network participation, active network contracts, or compliance issues.
 
-That's it!
+**Search → lookup flow.** A provider search calls the `Search_Healthcare_Provider` flow, which returns the `providerId`. That ID is then passed into each "multiple" lookup flow (credentials, networks, contracts, service locations, compliance) so every follow-up is scoped to the correct provider. Each lookup flow queries its related records, loops through them to build a human-readable summary string, and returns either the record set or a "no records found" message.
 
-### Use Other AI Tools
+**Formatting / reasoning rules (enforced via subagent instructions).**
+- After a profile or lookup, the agent shows a single *"What would you like to view next?"* heading followed by a vertical bullet list of the remaining categories (Credentials, Service Locations, Provider Networks, Provider Network Contracts, Compliance Issues) — never inline or delimiter-separated.
+- A category is considered "viewed" only after its action successfully returns and displays; failed or empty lookups keep the category available.
+- Only non-empty fields are displayed — no "Not Available" / "None" placeholders.
+- Salesforce record IDs, Provider IDs, flow names, and other implementation details are never exposed to the user.
+- Compliance retrieval requires user confirmation before running.
 
-If you prefer to use other AI tools, such as Claude Code or Cursor, copy these skills from the `sf-skills` GitHub repository to the appropriate directory in this DX project. Check your AI tool's documentation for the specific location and how to enable the skills.  
-
-- [`developing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/developing-agentforce)
-- [`observing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/observing-agentforce)
-- [`testing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/testing-agentforce)
-
-## Vibe Code the Sample Agent
-
-Salesforce agents use an Agent Script file as their blueprint. To vibe code an agent, you vibe code its Agent Script file. Agent Script files are part of the `AiAuthoringBundle` metadata type.
-
-Let's see how this works by vibe coding the Agent Script file associated with the sample Local Info Agent. Open up the `force-app/main/default/aiAuthoringBundle/Local_Info_Agent/Local_Info_Agent.agent` file in VS Code, then enter your prompts in the Agentforce Vibes chat box. For example, to learn more about how the agent is coded, ask questions like: 
-
-- _What does the Local Info Agent do?_
-- _What Apex classes does this agent use?_
-- _Does the agent use flows?_
-
-As you get more familiar with vibe coding a Salesforce agent, you can start making actual changes to the Agent Script file.
-
-## Preview the Agent in Simulated Mode
-
-You can preview how the agent works right in VS Code using the Agentforce DX panel. For now you must preview in _simulated mode_, because you haven't yet deployed the Apex classes, flow, or prompt template to your org. After you deploy, you can use _live mode_ in which the agent uses the actual Apex classes, etc.  In simulated mode, the Local Info Agent mocks the answers to your questions. 
-
-To preview in simulated mode, right-click the `Local_Info_Agent.agent` file and choose **AFDX: Preview This Agent**.  In the Agentforce DX panel that opens, click **Start Simulation**.  Then enter a question in the chat box at the bottom, such as `What's the weather like?`.  The agent simulates an answer. 
-
-## Agentforce-Ready Scratch Orgs
-
-This template includes a scratch org configuration file (`config/project-scratch-def.json`) that contains the required settings and features for creating an Agentforce-ready scratch org. 
-
-Here's an example of creating a scratch org using the file; it assumes you've already authorized the Dev Hub org with alias `DevHub`:
-
-```bash
-sf org create scratch --definition-file config/project-scratch-def.json --alias AgentScratchOrg --set-default --target-dev-hub DevHub
-```
-
-## What's Inside This DX Project?
-
-These are the interesting metadata components associated with the Local Info Agent. All the component source files are in the `force-app/main/default` package directory under their associated metadata directory, such as `classes` for Apex classes.
+## What's Inside This Folder
 
 | Component | Type | Purpose |
 |---|---|---|
-| `Local_Info_Agent.agent` | Agent Script | The agent definition — tools, reasoning, variables, and flow control. |
-| `CheckWeather` | Apex Class | Invocable Apex. Checks current weather conditions for a given location. |
-| `CurrentDate` | Apex Class | Invocable Apex. Returns the current date for use by the agent. |
-| `WeatherService` | Apex Class | Provides mock weather data for the resort. |
-| `Get_Event_Info` | Prompt Template | Retrieves local events.|
-| `Get_Resort_Hours` | Flow | Returns facility hours and reservation requirements. |
-| `Resort_Agent` | Permission Set | Agent user permissions (Einstein Agent license). |
-| `Resort_Admin` | Permission Set | Admin/developer Apex class access. |
-| `AFDX_Agent_Perms` | Permission Set Group | Bundles agent user permissions for assignment. |
-| `AFDX_User_Perms` | Permission Set Group | Bundles admin user permissions for assignment. |
+| `Provider_Search_Service_Sunny_1.agent` | Agent Script (aiAuthoringBundle) | The Provider Search & Profile Lookup agent definition — router, two subagents, and their action-to-flow bindings. |
+| `Search_Healthcare_Provider` | Flow (AutoLaunched) | Searches Healthcare Provider records by Provider Name, NPI, or Tax ID and returns provider demographics plus `providerId`. |
+| `Get_Provider_Credentials_Multiple` | Flow (AutoLaunched) | Returns a provider's credential records — a single credential's details, a numbered list for selection, or a no-credentials message. |
+| `Fetch_selected_credential_details` | Flow (AutoLaunched) | Given a selected credential number and provider ID, returns the full detail of that one credential. |
+| `Get_Provider_Network_multiple` | Flow (AutoLaunched) | Returns all provider network (participation) records for the selected provider. |
+| `Get_Active_Provider_Contracts_Multiple` | Flow (AutoLaunched) | Returns all active provider network contract records for the selected provider. |
+| `Get_Provider_Service_Locations_Multiple` | Flow (AutoLaunched) | Returns all service/practice locations (name, address, city, country) for the selected provider. |
+| `Get_Provider_Compliance_Issue` | Flow (AutoLaunched) | Returns all compliance issue records for the selected provider. |
+| `Credential__c` | Custom Object | Provider credentialing lifecycle records. |
+| `Service_Location__c` | Custom Object | Provider service/practice location records. |
+| `Provider_Compliance_Issues__c` | Custom Object | Provider compliance/regulatory issue records. |
+| `vlocity_ins__ProviderNetwork__c` | Object (Health/Insurance) | Provider network participation records linking providers to networks. |
+| `AFDX_Agent_Perms` | Permission Set Group | Runtime permissions required by the Agentforce service agent. |
+| `AFDX_User_Perms` | Permission Set Group | Permissions required by AFDX admin/builder users. |
 
-## Next Steps
+> **Scaffolding note:** This folder was scaffolded from a template and still contains unused leftover files that are **not** part of this agent: the `Local_Info_Agent` bundle, the Apex classes `CheckWeather`, `CurrentDate`, and `WeatherService` (and their tests), the `Get_Event_Info` prompt template, and the `Resort_Admin` / `Resort_Agent` permission sets (the latter two are still referenced by the AFDX permission set groups but are generically named). They can be ignored or removed; the functional agent is described above.
 
-This README provides just a taste of working with Salesforce agents. Check out the [_Agentforce DX Developer Guide_](https://developer.salesforce.com/docs/einstein/genai/guide/agent-dx.html) which shows you how to:
+## Data Model
 
-- Author an agent, which involves generating an authoring bundle, coding the Agent Script file, and publishing the agent to your org.
-- Preview and debug an agent.
-- Test an agent.
+All lookup objects relate back to a provider through a `Healthcare_Provider__c` lookup to the **HealthcareProvider** record (Health Cloud), which is the anchor the `Search_Healthcare_Provider` flow resolves from the user's search term.
 
-## Read All About It
+- **`Credential__c`** — *"Tracks credentialing lifecycle."* Fields: `Credentialing_Status__c`, `Application_Date__c`, `Current_Stage__c`, `Assigned_Analyst__c`, `Expected_Completion__c`, `Committee_Review_Date__c`, `Rejection_Reason__c`, and `Healthcare_Provider__c` (lookup → HealthcareProvider). One provider can have many credentials.
 
-- [_Agentforce DX Developer Guide_](https://developer.salesforce.com/docs/einstein/genai/guide/agent-dx.html)
-- [_Agent Script_](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-script.html)
-- [_Agentforce Vibes Extension_](https://developer.salesforce.com/docs/platform/einstein-for-devs/guide/einstein-overview.html)
+- **`Service_Location__c`** — Practice/service locations. Fields: `Location_Name__c`, `Address__c`, `City__c`, `State__c`, `Country__c`, and `Healthcare_Provider__c` (lookup → HealthcareProvider). One provider can have many service locations.
 
-- [_Salesforce Extensions for VS Code_](https://developer.salesforce.com/docs/platform/sfvscode-extensions/guide)
-- [_Salesforce CLI Setup Guide_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [_Salesforce DX Developer Guide_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [_Salesforce CLI Command Reference_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+- **`Provider_Compliance_Issues__c`** — Compliance and regulatory records. Fields: `Issue_Title__c`, `Compliance_Type__c` (License Compliance, Credentialing, Regulatory, Documentation, Privacy, Quality, Others), `Severity__c` (Low / Medium / High / Critical), `Status__c` (Open, Under Review, Remediation Required, Resolved, Closed), `Identified_date__c`, `Resolution_Due_Date__c`, `Resolution_Date__c`, and `Healthcare_Provider__c` (lookup → HealthcareProvider). One provider can have many compliance issues.
+
+- **`vlocity_ins__ProviderNetwork__c`** — *"A group of service providers … that an insurance company has contracted with to provide services at prenegotiated rates to its members."* Represents provider network participation. Fields include `Network__c` (lookup → Network), `ProviderNetworkTier__c` (Tier 1 / 2 / 3), `vlocity_ins__LineofBusiness__c` (Group/Individual × Dental/Medical/Vision), `vlocity_ins__IsActive__c`, `vlocity_ins__EffectiveStartDate__c` / `vlocity_ins__EffectiveEndDate__c`, `vlocity_ins__CarrierAccountId__c`, `vlocity_ins__ParentNetworkId__c` (self-lookup), `vlocity_ins__RegionAvailability__c`, and `Healthcare_Provider__c` (lookup → HealthcareProvider). One provider can participate in many networks. Record types include Provider, Producer, and Pharmacy.
+
+## Try It Out
+
+- "Find provider **John Smith**." / "Search for NPI **1234567890**." / "Look up the provider with Tax ID **12-3456789**."
+- (after selecting a provider) "Show me this provider's **credentials**." → then "View credential **2**."
+- "List this provider's **service locations**."
+- "Which **provider networks** does this provider participate in?" / "Show the **active contracts**."
+- "Are there any **compliance issues** for this provider?"
+
+## Deploy
+
+Deploy this agent folder to your org:
+
+```bash
+sf project deploy start -d force-app/main/ProviderNetworkAgents/ProviderAgents/ProviderSearchNProfileLookupAgent
+```
+
+Then assign the folder's two permission set groups to the appropriate users:
+
+```bash
+# Runtime permissions for the Agentforce service-agent user
+sf org assign permset --name AFDX_Agent_Perms
+
+# Admin/builder permissions
+sf org assign permset --name AFDX_User_Perms
+```
+
+Assigning these groups grants all of the bundled object, field, Apex, and flow access, so the individual objects and classes do not need to be assigned separately.
+
+> Requires an org with Agentforce (Service) and Health Cloud / Insurance (`vlocity_ins`) enabled, and a **HealthcareProvider** data set for the search and lookup flows to resolve against.

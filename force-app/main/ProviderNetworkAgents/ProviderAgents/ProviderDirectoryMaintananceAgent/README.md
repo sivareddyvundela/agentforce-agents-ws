@@ -1,111 +1,127 @@
-# Agentforce Project
+# Provider Directory Maintenance Agent
 
-This Salesforce DX project contains a sample agent called Local Info Agent that you could, for example, embed in a resort's web site. The agent provides local weather updates, shares information about local events, and helps guests with facility hours. 
+An Agentforce Service Agent that helps external providers and members keep provider directory data accurate and compliant. It searches provider records, submits controlled change requests for a single field at a time, reports request status, and surfaces audit history — while enforcing that no external submission ever goes live without Provider Data Steward review.
 
-The agent demonstrates:
+## Table of Contents
 
-- Three types of subagents (Invocable Apex, Prompt Template, and Flow).
-- Mutable variables.
-- Flow control with `available when`.
-- Deterministic branching with `if/else` in reasoning instructions.
+- [Overview](#overview)
+- [Key Capabilities](#key-capabilities)
+- [How It Works](#how-it-works)
+- [What's Inside This Folder](#whats-inside-this-folder)
+- [Data Model](#data-model)
+- [Try It Out](#try-it-out)
+- [Deploy](#deploy)
 
-## Prerequisites
+## Overview
 
-- **Salesforce Developer Edition (DE)** org. Get a free one at [developer.salesforce.com/signup](https://developer.salesforce.com/signup). 
-- **Salesforce CLI** (`sf`). Download and install it from [developer.salesforce.com/tools/sfdxcli](https://developer.salesforce.com/tools/sfdxcli).  See the [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm) for more detailed information. 
-- **VS Code** with the **Salesforce Extensions** pack and the **Agentforce DX** extension. See [Install Pro-Code Tools](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-dx-set-up-env.html) for details. 
+Health plans are required to maintain accurate, up-to-date provider directories. Wrong addresses, phone numbers, office hours, or "accepting new patients" flags create member abrasion and regulatory exposure. This agent gives providers and members a conversational channel to propose corrections, while keeping every change governed:
 
-After you get a DE org and set up your tools, authorize the org so you can start working with it.  Open VS Code and use the **SFDX: Authorize an Org** VS Code command from the Command Palette, or run this CLI command in VS Code's integrated terminal:
+- Providers can request updates to their own practice information.
+- Members can report that a listed detail appears incorrect (treated as an unverified report, not a confirmed fact).
+- Every submission becomes a `Provider_Change_Request__c` record that flows through validation and steward approval before the underlying `Contact` (provider) record is updated.
+- Every change is written to an immutable `Directory_Audit_Log__c` trail for compliance and history.
 
-```bash
-sf org login web --alias my-de-org --set-default
-```
-Log in to the browser that opens using your DE credentials.  
+The agent never publishes directly. It never allows emergency/fast-lane publishing for external users, regardless of stated urgency.
 
-## Configure Your Salesforce DX Project
+## Key Capabilities
 
-Your new Salesforce DX project is ready to use.  
+- **Provider lookup** by name, NPI, or Tax ID before any update or report.
+- **Single-field change requests** for a controlled set of directory attributes: Address, Phone, Office Hours, Languages, Accessibility, Telehealth, or Accepting New Patients (one field per submission).
+- **Member "report incorrect data"** flow that is captured for verification rather than applied as fact.
+- **Request status lookup** in plain language (under review, approved and applied, not approved, published).
+- **Audit history** of what changed for a provider over time, limited to publicly appropriate summary detail.
+- **Duplicate awareness** — if a duplicate is flagged the agent surfaces it and does not proceed without user acknowledgment.
+- **Automatic audit logging and approval application** via record-triggered background flows.
 
-But you can further configure it by editing the `sfdx-project.json` file. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file. 
+## How It Works
 
-## Enable Skills in Agentforce Vibes to Vibe Code Agents
+**Start / router agent — `Agent Router`.** The conversation begins at `agent_router`, which welcomes the user and classifies intent using the `sfdc_ai__DefaultEinsteinHyperClassifier` model, then transitions to the single subagent below.
 
-To vibe code agents using Agentforce Vibes, first open the Agentforce Vibes panel. Click the **Manage Skills, Rules, Workflows, and Hookss** icon, then the **Skills** tab, and ensure these skills are enabled:
+**Subagent — `Provider Directory Management`.** Handles all provider update and report interactions. Its reasoning rules enforce the governance model:
 
-- `developing-agentforce`
-- `observing-agentforce`
-- `testing-agentforce`
+- Always confirm the exact old value and new value with the user before submitting.
+- Always ask the external user for their name; if a provider is updating their own record, confirm they speak on behalf of that provider.
+- Never allow emergency or fast-lane publishing for any external user — all external submissions route to Provider Data Steward review.
+- Treat member submissions as reports to be verified, never as confirmed directory updates.
+- Never state a change is live until its status is `Published`.
+- Only use data returned by the actions — never fabricate provider information.
 
-That's it!
+**Actions exposed to the subagent** (each backed by a Flow):
 
-### Use Other AI Tools
+1. `SearchProviderByIdentifier` — always called first; finds the provider and returns a record summary. Its result supplies the `ProviderId` and current field values used later.
+2. `SubmitProviderChangeRequestUpdatedFlow` — creates one change request for one field; `OldValue` is taken from the retrieved record (not asked of the user), `IsEmergency` is always false for external users. Returns a change-request reference ID.
+3. `ProviderChangeRequestStatus` (Flow `NewChangeRequestStatus`) — returns a plain-language status summary for a submitted request.
+4. `GetAuditHistory` — returns publicly appropriate change history for a provider.
 
-If you prefer to use other AI tools, such as Claude Code or Cursor, copy these skills from the `sf-skills` GitHub repository to the appropriate directory in this DX project. Check your AI tool's documentation for the specific location and how to enable the skills.  
+**Change-request + audit lifecycle.** A submission creates a `Provider_Change_Request__c` in `Draft`, moving through `Pending Validation → Pending Approval → Approved / Rejected → Published` (with `Emergency-Published` reserved for internal, non-external use). Two record-triggered background flows govern the outcome:
 
-- [`developing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/developing-agentforce)
-- [`observing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/observing-agentforce)
-- [`testing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/testing-agentforce)
+- `Provider_Approval_Checking_Flow` — triggers on `Provider_Change_Request__c` update; once approved, applies the requested value to the correct `Contact` field based on which directory attribute was changed (Address, Phone, Office Hours, Languages, Accessibility, Telehealth, or Accepting New Patients).
+- `DirectoryAuditLogRecordTriggerFlow` — triggers on `Provider_Change_Request__c` create/update and writes a `Directory_Audit_Log__c` entry capturing the field, old/new values, requester, and timestamp.
+- `SubmitEmergencyChangeRequest` — triggers on `Provider_Change_Request__c` create/update to raise a follow-up `Task` for internal handling of emergency-flagged requests.
 
-## Vibe Code the Sample Agent
-
-Salesforce agents use an Agent Script file as their blueprint. To vibe code an agent, you vibe code its Agent Script file. Agent Script files are part of the `AiAuthoringBundle` metadata type.
-
-Let's see how this works by vibe coding the Agent Script file associated with the sample Local Info Agent. Open up the `force-app/main/default/aiAuthoringBundle/Local_Info_Agent/Local_Info_Agent.agent` file in VS Code, then enter your prompts in the Agentforce Vibes chat box. For example, to learn more about how the agent is coded, ask questions like: 
-
-- _What does the Local Info Agent do?_
-- _What Apex classes does this agent use?_
-- _Does the agent use flows?_
-
-As you get more familiar with vibe coding a Salesforce agent, you can start making actual changes to the Agent Script file.
-
-## Preview the Agent in Simulated Mode
-
-You can preview how the agent works right in VS Code using the Agentforce DX panel. For now you must preview in _simulated mode_, because you haven't yet deployed the Apex classes, flow, or prompt template to your org. After you deploy, you can use _live mode_ in which the agent uses the actual Apex classes, etc.  In simulated mode, the Local Info Agent mocks the answers to your questions. 
-
-To preview in simulated mode, right-click the `Local_Info_Agent.agent` file and choose **AFDX: Preview This Agent**.  In the Agentforce DX panel that opens, click **Start Simulation**.  Then enter a question in the chat box at the bottom, such as `What's the weather like?`.  The agent simulates an answer. 
-
-## Agentforce-Ready Scratch Orgs
-
-This template includes a scratch org configuration file (`config/project-scratch-def.json`) that contains the required settings and features for creating an Agentforce-ready scratch org. 
-
-Here's an example of creating a scratch org using the file; it assumes you've already authorized the Dev Hub org with alias `DevHub`:
-
-```bash
-sf org create scratch --definition-file config/project-scratch-def.json --alias AgentScratchOrg --set-default --target-dev-hub DevHub
-```
-
-## What's Inside This DX Project?
-
-These are the interesting metadata components associated with the Local Info Agent. All the component source files are in the `force-app/main/default` package directory under their associated metadata directory, such as `classes` for Apex classes.
+## What's Inside This Folder
 
 | Component | Type | Purpose |
-|---|---|---|
-| `Local_Info_Agent.agent` | Agent Script | The agent definition — tools, reasoning, variables, and flow control. |
-| `CheckWeather` | Apex Class | Invocable Apex. Checks current weather conditions for a given location. |
-| `CurrentDate` | Apex Class | Invocable Apex. Returns the current date for use by the agent. |
-| `WeatherService` | Apex Class | Provides mock weather data for the resort. |
-| `Get_Event_Info` | Prompt Template | Retrieves local events.|
-| `Get_Resort_Hours` | Flow | Returns facility hours and reservation requirements. |
-| `Resort_Agent` | Permission Set | Agent user permissions (Einstein Agent license). |
-| `Resort_Admin` | Permission Set | Admin/developer Apex class access. |
-| `AFDX_Agent_Perms` | Permission Set Group | Bundles agent user permissions for assignment. |
-| `AFDX_User_Perms` | Permission Set Group | Bundles admin user permissions for assignment. |
+| --- | --- | --- |
+| `DheerajServiceAgentProviderDirectoryMaintainance` | Agent blueprint (aiAuthoringBundle) | The real agent: router, `Provider Directory Management` subagent, reasoning rules, actions, and variables |
+| `SearchProviderByIdentifier` | Flow (autolaunched) | Finds a provider by name, NPI, or Tax ID and returns a record summary |
+| `SubmitProviderChangeRequestUpdatedFlow` | Flow (autolaunched) | Creates a single-field `Provider_Change_Request__c` and returns its reference ID |
+| `NewChangeRequestStatus` | Flow (autolaunched) | Returns a plain-language status summary for a submitted change request |
+| `GetAuditHistory` | Flow (autolaunched) | Retrieves publicly appropriate change history for a provider |
+| `Provider_Approval_Checking_Flow` | Flow (record-triggered on `Provider_Change_Request__c` update) | On approval, applies the change to the matching `Contact` directory field |
+| `DirectoryAuditLogRecordTriggerFlow` | Flow (record-triggered on `Provider_Change_Request__c` create/update) | Writes a `Directory_Audit_Log__c` entry for each change |
+| `SubmitEmergencyChangeRequest` | Flow (record-triggered on `Provider_Change_Request__c` create/update) | Creates a follow-up `Task` for emergency-flagged requests |
+| `Provider_Change_Request__c` | Custom object | The governed change-request record and its lifecycle status |
+| `Directory_Audit_Log__c` | Custom object | Immutable audit trail of applied/attempted directory changes |
+| `Contact` | Standard object (extended) | The provider record, with directory fields such as `NPI__c`, `Office_Hours_Summary__c`, `Telehealth_Available__c`, `Accessibility_Features__c`, and `Directory_Last_verified_Date__c` |
+| `AFDX_Agent_Perms` | Permission set group | Permissions required by the Agentforce service agent runtime |
+| `AFDX_User_Perms` | Permission set group | Permissions required by AFDX admin users |
 
-## Next Steps
+**Template scaffolding (not part of this agent):** this folder was scaffolded from a Salesforce starter template and still contains unrelated leftover files — `CheckWeather.cls`, `CurrentDate.cls`, `WeatherService.cls` (and their tests), the `Local_Info_Agent` bundle, the `Get_Resort_Hours` flow, the `Get_Event_Info` prompt template, and the `Resort_Admin` / `Resort_Agent` permission sets. These can be removed and are not referenced by the Provider Directory Maintenance agent.
 
-This README provides just a taste of working with Salesforce agents. Check out the [_Agentforce DX Developer Guide_](https://developer.salesforce.com/docs/einstein/genai/guide/agent-dx.html) which shows you how to:
+## Data Model
 
-- Author an agent, which involves generating an authoring bundle, coding the Agent Script file, and publishing the agent to your org.
-- Preview and debug an agent.
-- Test an agent.
+**`Provider_Change_Request__c`** — one record per requested change to a single provider field. Key fields:
 
-## Read All About It
+- `Provider__c` (Lookup → `Contact`) — the provider being changed.
+- `Field_Being_Changed__c`, `Old_Value__c`, `New_Value__c` — the proposed edit.
+- `Status__c` (picklist: `Draft`, `Pending Validation`, `Pending Approval`, `Approved`, `Rejected`, `Published`, `Emergency-Published`; defaults to `Draft`).
+- `Submitter_Name__c`, `Requested_By__c`, `Requested_Date__c` — provenance.
+- `Is_Emergency__c`, `Emergency_Justification__c` — internal emergency handling (not available externally).
+- `Duplicate_Check_Result__c`, `Duplicate_Match__c`, `External_Validation_Result__c`, `Validation_Source__c` — validation outcomes.
+- `Approver__c`, `Approval_Date__c`, `Rejection_Reason__c` — approval decision.
 
-- [_Agentforce DX Developer Guide_](https://developer.salesforce.com/docs/einstein/genai/guide/agent-dx.html)
-- [_Agent Script_](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-script.html)
-- [_Agentforce Vibes Extension_](https://developer.salesforce.com/docs/platform/einstein-for-devs/guide/einstein-overview.html)
+**`Directory_Audit_Log__c`** — the immutable history trail. Key fields:
 
-- [_Salesforce Extensions for VS Code_](https://developer.salesforce.com/docs/platform/sfvscode-extensions/guide)
-- [_Salesforce CLI Setup Guide_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [_Salesforce DX Developer Guide_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [_Salesforce CLI Command Reference_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+- `Change_Request__c` (Lookup → `Provider_Change_Request__c`) — the originating request.
+- `Provider__c` (Lookup → `Contact`) — the provider affected.
+- `Action__c`, `Field_Changed__c`, `Old_Value__c`, `New_Value__c` — what happened.
+- `Requested_By__c`, `Approved_By__c`, `TimeStamp__c` — who and when.
+
+**`Contact`** — represents the provider whose directory listing is maintained. Directory-relevant custom fields include `NPI__c`, `Accessibility_Features__c`, `Office_Hours_Summary__c`, `Telehealth_Available__c`, `Directory_Last_verified_Date__c`, and `vlocity_ins__ProviderIsAcceptingNewPatients__c`.
+
+**Relationships:** A `Contact` (provider) can have many `Provider_Change_Request__c` records (via `Provider__c`). Each `Provider_Change_Request__c` can generate one or more `Directory_Audit_Log__c` entries (via `Change_Request__c`), which also link back to the provider `Contact` (via `Provider__c`). Approved change requests write their new value onto the corresponding `Contact` field.
+
+## Try It Out
+
+- "I'm Dr. Lee's office manager. Can you update the phone number for Dr. Anita Lee, NPI 1234567890?"
+- "I'm a member — the address listed for City Health Clinic looks wrong; it should be 200 Main St, Suite 4."
+- "What's the status of the change request I submitted earlier?"
+- "Can you show me what has changed for Dr. Anita Lee's listing recently?"
+
+## Deploy
+
+Deploy this folder to your org:
+
+```bash
+sf project deploy start -d force-app/main/ProviderNetworkAgents/ProviderAgents/ProviderDirectoryMaintananceAgent
+```
+
+Then assign this folder's two permission set groups to the appropriate users:
+
+```bash
+sf org assign permset --name AFDX_Agent_Perms
+sf org assign permset --name AFDX_User_Perms
+```
+
+Assign `AFDX_Agent_Perms` to the Agentforce service-agent runtime user and `AFDX_User_Perms` to the admin/builder who manages the agent. Assigning these groups grants all bundled object, field, Apex, and flow access, so individual objects and classes do not need to be assigned separately. (The `Resort_Admin` / `Resort_Agent` permission sets are leftover template scaffolding and are not required.)

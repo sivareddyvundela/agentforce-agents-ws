@@ -1,111 +1,108 @@
-# Agentforce Project
+# Provider Contract Inquiry Agent
 
-This Salesforce DX project contains a sample agent called Local Info Agent that you could, for example, embed in a resort's web site. The agent provides local weather updates, shares information about local events, and helps guests with facility hours. 
+An Agentforce (Employee) agent that lets payer / provider-network staff look up and understand a healthcare provider's contract using a contract number, provider name, or NPI number, and returns contract, network, fee-schedule, and amendment details in a clean, business-friendly format.
 
-The agent demonstrates:
+## Table of Contents
 
-- Three types of subagents (Invocable Apex, Prompt Template, and Flow).
-- Mutable variables.
-- Flow control with `available when`.
-- Deterministic branching with `if/else` in reasoning instructions.
+- [Overview](#overview)
+- [Key Capabilities](#key-capabilities)
+- [How It Works](#how-it-works)
+- [What's Inside This Folder](#whats-inside-this-folder)
+- [Data Model](#data-model)
+- [Try It Out](#try-it-out)
+- [Deploy](#deploy)
+- [Template scaffolding](#template-scaffolding)
 
-## Prerequisites
+## Overview
 
-- **Salesforce Developer Edition (DE)** org. Get a free one at [developer.salesforce.com/signup](https://developer.salesforce.com/signup). 
-- **Salesforce CLI** (`sf`). Download and install it from [developer.salesforce.com/tools/sfdxcli](https://developer.salesforce.com/tools/sfdxcli).  See the [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm) for more detailed information. 
-- **VS Code** with the **Salesforce Extensions** pack and the **Agentforce DX** extension. See [Install Pro-Code Tools](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-dx-set-up-env.html) for details. 
+Provider-network and contracting teams frequently need to answer point-in-time questions about a provider agreement: When does this contract expire? Which networks does the provider participate in? What are the reimbursement rates on the fee schedule? Has the contract been amended recently? Traditionally this means clicking through several related records (Contract, Healthcare Provider, Provider Network, Fee Schedule, and amendment history) across the org.
 
-After you get a DE org and set up your tools, authorize the org so you can start working with it.  Open VS Code and use the **SFDX: Authorize an Org** VS Code command from the Command Palette, or run this CLI command in VS Code's integrated terminal:
+The **Provider Contract Inquiry Agent** collapses that work into a single conversational request. A user supplies one identifier (contract number, provider name, or NPI), and the agent resolves the correct records, then presents the contract summary first and lets the user drill into network, fee-schedule, or amendment details on demand. It is built on the Agentforce Employee (`EmployeeCopilot__AgentforceEmployeeAgent`) template and is grounded strictly in returned Salesforce data, so it will not invent contract terms that aren't in the source records.
 
-```bash
-sf org login web --alias my-de-org --set-default
-```
-Log in to the browser that opens using your DE credentials.  
+## Key Capabilities
 
-## Configure Your Salesforce DX Project
+- Look up a provider contract by **contract number**, **provider name**, or **NPI number**.
+- Return core **contract details**: healthcare provider name, contract number, effective (start) date, and expiration date.
+- Show **provider network participation** (network name and network type).
+- Show **fee schedule** information: product, reimbursement rate, rate type, and schedule effective/end dates, listed per record.
+- Show **contract amendment history**, summarizing each change (field changed, old value, new value).
+- Guide the user with a menu after the initial summary so they choose which section to expand, rather than dumping everything at once.
+- Fall back gracefully: if no matching contract is found, it asks the user to verify the contract number, provider name, or NPI.
+- Answer general company/policy questions via knowledge search, and politely redirect off-topic or ambiguous requests.
 
-Your new Salesforce DX project is ready to use.  
+## How It Works
 
-But you can further configure it by editing the `sfdx-project.json` file. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file. 
+**Architecture.** The bundle [`Provider_Contract_Inquiry_Agent.agent`](aiAuthoringBundles/Provider_Contract_Inquiry_Agent/Provider_Contract_Inquiry_Agent.agent) defines a router-plus-subagents design:
 
-## Enable Skills in Agentforce Vibes to Vibe Code Agents
+- **Start agent — `agent_router`** greets the user and classifies intent, then transitions to the appropriate subagent. It uses the classifier model `model://sfdc_ai__DefaultEinsteinHyperClassifier`.
+- **Subagent — `Provider_Contract_Inquiry`** is the domain worker. It invokes the single action `Get_Provider_Contract_Information` and applies strict formatting rules: strip any HTML/rich-text returned by the action, render everything as plain text with one field per line, show only the contract summary first, and reveal Provider Network / Fee Schedule / Amendment sections only when the user explicitly asks.
+- **Standard subagents** round out the experience: `GeneralFAQ` (answers company/policy questions via the `AnswerQuestionsWithKnowledge` knowledge-search action), `off_topic` (redirects off-topic requests), and `ambiguous_question` (asks the user to clarify vague requests). The last two enforce guardrails against prompt-injection and revealing system configuration.
 
-To vibe code agents using Agentforce Vibes, first open the Agentforce Vibes panel. Click the **Manage Skills, Rules, Workflows, and Hookss** icon, then the **Skills** tab, and ensure these skills are enabled:
+**Request flow.** The `Get_Provider_Contract_Information` action targets the flow [`ALF_Provider_contract_enquiry`](flows/ALF_Provider_contract_enquiry.flow-meta.xml) and passes the user's search value as `inputName`. The flow:
 
-- `developing-agentforce`
-- `observing-agentforce`
-- `testing-agentforce`
+1. Uses a formula (`trueContract`) to detect a contract number — an 8-character value beginning with `0` — versus a provider name/NPI.
+2. If a contract number, it queries **Contract** by `ContractNumber`, then loads the related **HealthcareProvider** via `Healthcare_Provider__c`. Otherwise it queries **HealthcareProvider** by `Name` (contains) or `NPI__c`, then finds that provider's **Contract**.
+3. Loads related **Provider Network**, **Fee Schedule**, and **Contract Amendment** records, formats each section into text templates, and returns a single `output` string plus a `userFound` boolean.
 
-That's it!
+**Amendment tracking.** Amendment history is populated automatically. The [`ContractTrigger`](triggers/ContractTrigger.trigger) fires `after update` on Contract and calls [`ContractAmendmentHandler`](classes/ContractAmendmentHandler.cls), which compares old and new values of `Status`, `StartDate`, and `EndDate` and inserts a `Contract_Amendment__c` record (with a human-readable summary) for each changed field.
 
-### Use Other AI Tools
-
-If you prefer to use other AI tools, such as Claude Code or Cursor, copy these skills from the `sf-skills` GitHub repository to the appropriate directory in this DX project. Check your AI tool's documentation for the specific location and how to enable the skills.  
-
-- [`developing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/developing-agentforce)
-- [`observing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/observing-agentforce)
-- [`testing-agentforce`](https://github.com/forcedotcom/sf-skills/tree/main/skills/testing-agentforce)
-
-## Vibe Code the Sample Agent
-
-Salesforce agents use an Agent Script file as their blueprint. To vibe code an agent, you vibe code its Agent Script file. Agent Script files are part of the `AiAuthoringBundle` metadata type.
-
-Let's see how this works by vibe coding the Agent Script file associated with the sample Local Info Agent. Open up the `force-app/main/default/aiAuthoringBundle/Local_Info_Agent/Local_Info_Agent.agent` file in VS Code, then enter your prompts in the Agentforce Vibes chat box. For example, to learn more about how the agent is coded, ask questions like: 
-
-- _What does the Local Info Agent do?_
-- _What Apex classes does this agent use?_
-- _Does the agent use flows?_
-
-As you get more familiar with vibe coding a Salesforce agent, you can start making actual changes to the Agent Script file.
-
-## Preview the Agent in Simulated Mode
-
-You can preview how the agent works right in VS Code using the Agentforce DX panel. For now you must preview in _simulated mode_, because you haven't yet deployed the Apex classes, flow, or prompt template to your org. After you deploy, you can use _live mode_ in which the agent uses the actual Apex classes, etc.  In simulated mode, the Local Info Agent mocks the answers to your questions. 
-
-To preview in simulated mode, right-click the `Local_Info_Agent.agent` file and choose **AFDX: Preview This Agent**.  In the Agentforce DX panel that opens, click **Start Simulation**.  Then enter a question in the chat box at the bottom, such as `What's the weather like?`.  The agent simulates an answer. 
-
-## Agentforce-Ready Scratch Orgs
-
-This template includes a scratch org configuration file (`config/project-scratch-def.json`) that contains the required settings and features for creating an Agentforce-ready scratch org. 
-
-Here's an example of creating a scratch org using the file; it assumes you've already authorized the Dev Hub org with alias `DevHub`:
-
-```bash
-sf org create scratch --definition-file config/project-scratch-def.json --alias AgentScratchOrg --set-default --target-dev-hub DevHub
-```
-
-## What's Inside This DX Project?
-
-These are the interesting metadata components associated with the Local Info Agent. All the component source files are in the `force-app/main/default` package directory under their associated metadata directory, such as `classes` for Apex classes.
+## What's Inside This Folder
 
 | Component | Type | Purpose |
-|---|---|---|
-| `Local_Info_Agent.agent` | Agent Script | The agent definition — tools, reasoning, variables, and flow control. |
-| `CheckWeather` | Apex Class | Invocable Apex. Checks current weather conditions for a given location. |
-| `CurrentDate` | Apex Class | Invocable Apex. Returns the current date for use by the agent. |
-| `WeatherService` | Apex Class | Provides mock weather data for the resort. |
-| `Get_Event_Info` | Prompt Template | Retrieves local events.|
-| `Get_Resort_Hours` | Flow | Returns facility hours and reservation requirements. |
-| `Resort_Agent` | Permission Set | Agent user permissions (Einstein Agent license). |
-| `Resort_Admin` | Permission Set | Admin/developer Apex class access. |
-| `AFDX_Agent_Perms` | Permission Set Group | Bundles agent user permissions for assignment. |
-| `AFDX_User_Perms` | Permission Set Group | Bundles admin user permissions for assignment. |
+| --- | --- | --- |
+| [`Provider_Contract_Inquiry_Agent`](aiAuthoringBundles/Provider_Contract_Inquiry_Agent/Provider_Contract_Inquiry_Agent.agent) | Agent bundle (aiAuthoringBundle) | The agent blueprint: system instructions, router, subagents, the `Get_Provider_Contract_Information` action, and session variables. |
+| [`ALF_Provider_contract_enquiry`](flows/ALF_Provider_contract_enquiry.flow-meta.xml) | Autolaunched Flow | Backing logic for the action: resolves the identifier, queries related records, and builds the formatted `output` string and `userFound` flag. |
+| [`ContractAmendmentHandler`](classes/ContractAmendmentHandler.cls) | Apex class | Detects changes to a Contract's Status, Start Date, and End Date and creates `Contract_Amendment__c` records. |
+| [`ContractTrigger`](triggers/ContractTrigger.trigger) | Apex trigger | `after update` trigger on Contract that invokes `ContractAmendmentHandler`. |
+| [`Contract`](objects/Contract/Contract.object-meta.xml) | Standard object (extended) | Provider contracts, with the custom `Healthcare_Provider__c` lookup and SBQQ/vlocity fields. |
+| [`Contract_Amendment__c`](objects/Contract_Amendment__c/Contract_Amendment__c.object-meta.xml) | Custom object | Amendment history log (Changed Field, Old/New Value, Summary, Amendment Date) related to a Contract. |
+| [`Fee_Schedules_contract__c`](objects/Fee_Schedules_contract__c/Fee_Schedules_contract__c.object-meta.xml) | Custom object | Fee schedule lines per contract: Product, Reimbursement Rate, Rate Type, Effective/End dates, Service code. |
+| [`HealthcareProvider`](objects/HealthcareProvider/HealthcareProvider.object-meta.xml) | Standard object (extended) | The provider, keyed by `Name` and `NPI__c`; source of the provider identity used in lookups. |
+| [`vlocity_ins__ProviderNetwork__c`](objects/vlocity_ins__ProviderNetwork__c/vlocity_ins__ProviderNetwork__c.object-meta.xml) | Custom object (Vlocity / Industries) | Provider network participation records surfaced in the "Provider Network Information" section. |
+| [`AFDX_Agent_Perms`](permissionsetgroups/AFDX_Agent_Perms.permissionsetgroup-meta.xml) | Permission set group | Permissions required by the Agentforce service-agent user. |
+| [`AFDX_User_Perms`](permissionsetgroups/AFDX_User_Perms.permissionsetgroup-meta.xml) | Permission set group | Permissions required by admin / builder users of the agent. |
 
-## Next Steps
+## Data Model
 
-This README provides just a taste of working with Salesforce agents. Check out the [_Agentforce DX Developer Guide_](https://developer.salesforce.com/docs/einstein/genai/guide/agent-dx.html) which shows you how to:
+The agent joins one standard-object chain with three supporting custom objects:
 
-- Author an agent, which involves generating an authoring bundle, coding the Agent Script file, and publishing the agent to your org.
-- Preview and debug an agent.
-- Test an agent.
+- **HealthcareProvider** — the provider record, matched by `Name` (contains) or `NPI__c`.
+- **Contract** (standard object, extended for this app) — linked to a provider through the custom `Healthcare_Provider__c` lookup. Contract number, `StartDate` (effective date), and `SBQQ__ExpirationDate__c` (expiration date) drive the summary.
+- **Fee_Schedules_contract__c** — child of Contract via `Contract__c`; holds reimbursement rates by product / service code.
+- **Contract_Amendment__c** — child of Contract via `Contract__c`; an audit trail written automatically by the Contract trigger.
+- **vlocity_ins__ProviderNetwork__c** — related to the provider via `Healthcare_Provider__c`; represents network participation and tier.
 
-## Read All About It
+Relationship in brief: `HealthcareProvider 1—* Contract 1—* Fee_Schedules_contract__c` and `1—* Contract_Amendment__c`, with `HealthcareProvider 1—* vlocity_ins__ProviderNetwork__c`.
 
-- [_Agentforce DX Developer Guide_](https://developer.salesforce.com/docs/einstein/genai/guide/agent-dx.html)
-- [_Agent Script_](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-script.html)
-- [_Agentforce Vibes Extension_](https://developer.salesforce.com/docs/platform/einstein-for-devs/guide/einstein-overview.html)
+## Try It Out
 
-- [_Salesforce Extensions for VS Code_](https://developer.salesforce.com/docs/platform/sfvscode-extensions/guide)
-- [_Salesforce CLI Setup Guide_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [_Salesforce DX Developer Guide_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [_Salesforce CLI Command Reference_](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+- "Look up contract number 00000105."
+- "Show me the contract for NPI 1043210987."
+- "What contract do we have with Dr. John Smith?"
+- After the summary appears: "Show me the fee schedule information." / "Show the amendment history." / "Which networks is this provider in?"
+
+## Deploy
+
+Deploy the whole folder with the Salesforce CLI:
+
+```bash
+sf project deploy start -d force-app/main/ProviderNetworkAgents/ProviderAgents/ProviderContractInquiryAgent
+```
+
+Then assign the two permission set groups that ship with this folder:
+
+```bash
+# Agentforce runtime / service-agent user
+sf org assign permset --name AFDX_Agent_Perms
+
+# Admin / builder users
+sf org assign permset --name AFDX_User_Perms
+```
+
+Assigning these groups grants all bundled object, field, Apex, and flow access, so you do **not** need to assign individual objects or classes separately.
+
+---
+
+### Template scaffolding
+
+This folder was scaffolded from a Salesforce Agentforce template, and a few template artifacts remain that are unrelated to contract inquiry: the permission set groups still list `Resort_Agent` and `Resort_Admin` permission sets, and the agent's `config.agent_label` carries a personalized `"Prasanth Provider Contract Inquiry Agent"` label. The functional agent, flow, Apex, and data model documented above are the real contract-inquiry implementation.
