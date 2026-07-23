@@ -1,0 +1,14 @@
+{
+  "required" : [ "providerId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "providerId" : {
+      "title" : "providerId",
+      "description" : "This receives the Healthcare Provider Id already identified by the Provider Search subagent",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

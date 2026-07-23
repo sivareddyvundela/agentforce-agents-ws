@@ -1,0 +1,14 @@
+{
+  "required" : [ "ClaimId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "ClaimId" : {
+      "title" : "ClaimId",
+      "description" : "Input from the agent.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

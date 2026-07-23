@@ -1,0 +1,28 @@
+{
+  "required" : [ ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "NPI" : {
+      "title" : "NPI",
+      "description" : "The National Provider Identifier (NPI) of the provider reporting the issue. A 10-digit unique identifier used to look up the provider's record.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "Name" : {
+      "title" : "Name",
+      "description" : "The name of the provider reporting the issue, as stated by the user in the conversation",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varProviderMessage" : {
+      "title" : "varProviderMessage",
+      "description" : "The provider's description of their issue, captured from the conversation exactly as stated by the provider. This is the raw issue description used by the classification prompt to determine issue type and confidence score. Do not summarize, rephrase, or add information — pass the provider's message as given.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

@@ -1,0 +1,56 @@
+{
+  "required" : [ "accountName", "coverageChangeType", "dependentName", "dependentGender", "dependentDob", "relationToSubscriber", "effectiveDateOfChange" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "accountName" : {
+      "title" : "Account Name",
+      "description" : "Account Name provided by the user.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "coverageChangeType" : {
+      "title" : "Coverage Change Type",
+      "description" : "Coverage Change Type (Add Dependent or Remove Dependent).",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "dependentDob" : {
+      "title" : "Dependent DOB",
+      "description" : "Dependent Date of Birth.",
+      "lightning:type" : "lightning__dateType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "dependentGender" : {
+      "title" : "Dependent Gender",
+      "description" : "Dependent Gender.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "dependentName" : {
+      "title" : "Dependent Name",
+      "description" : "Dependent Name.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "effectiveDateOfChange" : {
+      "title" : "Effective Date Of Change",
+      "description" : "Effective date for the coverage change.",
+      "lightning:type" : "lightning__dateType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "relationToSubscriber" : {
+      "title" : "Relation To Subscriber",
+      "description" : "Relation of the dependent to the subscriber.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

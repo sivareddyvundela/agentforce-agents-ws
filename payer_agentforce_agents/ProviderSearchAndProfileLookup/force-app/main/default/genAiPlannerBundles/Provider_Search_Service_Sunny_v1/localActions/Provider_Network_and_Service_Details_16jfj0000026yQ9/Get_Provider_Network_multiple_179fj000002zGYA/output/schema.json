@@ -1,0 +1,14 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "networkSummary" : {
+      "title" : "networkSummary",
+      "description" : "Contains the complete details of the selected provider credential, including credential name, credential status, application date, current stage, assigned analyst, expected completion date, committee review date, and rejection reason.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

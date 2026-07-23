@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>healthEdge AI - Member Benefits and Eligibility</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="dashboard-body">
+
+<div class="app-shell">
+
+  <!-- ===================== TOP HEADER ===================== -->
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="header-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L3 6V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V6L12 2Z" fill="url(#gradMarkH)"/>
+        <path d="M9 12L11 14L15.5 9.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="gradMarkH" x1="3" y1="2" x2="21" y2="23" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#DB2777"/>
+            <stop offset="1" stop-color="#F472B6"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="header-wordmark">healthEdge <strong>AI</strong></span>
+      <span class="header-divider">|</span>
+      <span class="header-title">Member Benefits and Eligibility</span>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </header>
+
+  <div class="app-body">
+
+    <!-- ===================== SIDEBAR NAV ===================== -->
+    <nav class="app-sidebar" id="appSidebar">
+      <ul class="nav-list" id="navList">
+        <!-- populated by app.js -->
+      </ul>
+    </nav>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <main class="app-main" id="appMain">
+
+      <!-- ---------- Overview ---------- -->
+      <section class="tab-panel" id="panel-overview" data-panel="overview">
+        <h1 class="panel-title">Overview</h1>
+        <p class="panel-lede" id="overviewDescription"></p>
+        <div class="stat-tile-row" id="statTileRow"></div>
+      </section>
+
+      <!-- ---------- My Profile ---------- -->
+      <section class="tab-panel" id="panel-profile" data-panel="profile" hidden>
+        <div class="profile-header-row">
+          <h1 class="panel-title">My Profile</h1>
+          <span class="verified-badge" id="verifiedBadge">Verified &#10003;</span>
+        </div>
+        <div class="profile-card" id="profileCard"></div>
+      </section>
+
+      <!-- ---------- Benefits & Coverage ---------- -->
+      <section class="tab-panel" id="panel-benefits" data-panel="benefits" hidden>
+        <h1 class="panel-title">Benefits &amp; Coverage</h1>
+        <p class="panel-lede" id="benefitsPlanName"></p>
+        <div class="profile-card" id="benefitsCard"></div>
+        <h2 class="panel-subtitle">Plan Benefit Items</h2>
+        <div class="table-wrap">
+          <table class="data-table" id="benefitItemsTable">
+            <thead>
+              <tr><th>Benefit Category</th><th>Service Type</th><th>Network</th><th>Coverage</th><th>Notes</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Claims History ---------- -->
+      <section class="tab-panel" id="panel-claims" data-panel="claims" hidden>
+        <h1 class="panel-title">Claims History</h1>
+        <div class="table-wrap">
+          <table class="data-table" id="claimsTable">
+            <thead>
+              <tr><th>Claim ID</th><th>Provider</th><th>Service Type</th><th>Date Submitted</th><th>Status</th><th>Member Responsibility</th><th>Denial Reason</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===================== FLOATING CHAT LAUNCHER ===================== -->
+<button class="chat-launcher" id="chatLauncher" aria-label="Open Agentforce chat">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <path d="M4 5H20V16H8L4 20V5Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="9" cy="10.5" r="1" fill="white"/>
+    <circle cx="12" cy="10.5" r="1" fill="white"/>
+    <circle cx="15" cy="10.5" r="1" fill="white"/>
+  </svg>
+</button>
+
+<div class="chat-stub-panel" id="chatStubPanel" hidden>
+  <div class="chat-stub-header">
+    <span>Agentforce Chat</span>
+    <button id="chatStubClose" aria-label="Close chat panel">&times;</button>
+  </div>
+  <div class="chat-stub-body">
+    <p>This is where the live Agentforce agent will appear once embedded.</p>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+
+<!-- ============================================================
+     AGENTFORCE EMBED SCRIPT
+     Paste the Agentforce Agent embedded-service bootstrap script
+     here to enable the live chat experience for this demo.
+     ============================================================ -->
+<!-- <script src="REPLACE_WITH_AGENTFORCE_EMBED_SCRIPT_URL"></script> -->
+</body>
+</html>

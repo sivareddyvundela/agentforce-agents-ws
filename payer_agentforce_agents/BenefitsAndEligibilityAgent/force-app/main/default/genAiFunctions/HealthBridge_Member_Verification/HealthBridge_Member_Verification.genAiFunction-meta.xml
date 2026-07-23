@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Verifies member identity using name, date of birth, and phone number</description>
+    <developerName>HealthBridge_Member_Verification</developerName>
+    <invocationTarget>MemberVerificationAction</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>HealthBridge_Member_Verification</localDeveloperName>
+    <masterLabel>HealthBridge Member Verification</masterLabel>
+    <progressIndicatorMessage>Verifying Member......</progressIndicatorMessage>
+</GenAiFunction>

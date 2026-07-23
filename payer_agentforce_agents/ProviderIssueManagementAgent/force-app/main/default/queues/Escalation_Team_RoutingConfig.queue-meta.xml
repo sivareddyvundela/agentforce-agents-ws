@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Queue xmlns="http://soap.sforce.com/2006/04/metadata">
+    <doesIncludeBosses>true</doesIncludeBosses>
+    <doesSendEmailToMembers>false</doesSendEmailToMembers>
+    <name>Escalation Team</name>
+    <queueMembers>
+        <users>
+            <user>admin@citiustech.com2026_05_25_hlsdemo2.agents</user>
+        </users>
+    </queueMembers>
+    <queueRoutingConfig>Escalation_Team_RoutingConfig</queueRoutingConfig>
+    <queueSobject>
+        <sobjectType>MessagingSession</sobjectType>
+    </queueSobject>
+</Queue>

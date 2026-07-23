@@ -1,0 +1,110 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "acceptingNewPatients" : {
+      "title" : "acceptingNewPatients",
+      "description" : "Indicates whether the healthcare provider is currently accepting new patients.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "boardCertified" : {
+      "title" : "boardCertified",
+      "description" : "Indicates whether the healthcare provider is board certified.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerEmail" : {
+      "title" : "providerEmail",
+      "description" : "Returns the provider’s email address.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerId" : {
+      "title" : "providerId",
+      "description" : "Returns the provider’s record id.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : false
+    },
+    "providerLink" : {
+      "title" : "providerLink",
+      "description" : "URL to open the provider record.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerNPI" : {
+      "title" : "providerNPI",
+      "description" : "Returns the National Provider Identifier (NPI) of the provider.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerName" : {
+      "title" : "providerName",
+      "description" : "Returns the healthcare provider’s full name.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerPhone" : {
+      "title" : "providerPhone",
+      "description" : "Returns the provider’s primary contact phone number.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerSpeciality" : {
+      "title" : "providerSpeciality",
+      "description" : "Returns the provider’s medical specialty.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerStatus" : {
+      "title" : "providerStatus",
+      "description" : "Returns the current status of the healthcare provider record.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerTaxId" : {
+      "title" : "providerTaxId",
+      "description" : "Returns the provider’s tax id.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerType" : {
+      "title" : "providerType",
+      "description" : "Returns the provider’s type or classification.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "searchResult" : {
+      "title" : "searchResult",
+      "description" : "Returns true if one or more healthcare provider records match the search criteria; otherwise returns false.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

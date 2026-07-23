@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>healthEdge AI - Network Participation Verification</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="dashboard-body">
+
+<div class="app-shell">
+
+  <!-- ===================== TOP HEADER ===================== -->
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="header-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L3 6V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V6L12 2Z" fill="url(#gradMarkH)"/>
+        <path d="M9 12L11 14L15.5 9.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="gradMarkH" x1="3" y1="2" x2="21" y2="23" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#059669"/>
+            <stop offset="1" stop-color="#34D399"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="header-wordmark">healthEdge <strong>AI</strong></span>
+      <span class="header-divider">|</span>
+      <span class="header-title">Network Participation Verification</span>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </header>
+
+  <div class="app-body">
+
+    <!-- ===================== SIDEBAR NAV ===================== -->
+    <nav class="app-sidebar" id="appSidebar">
+      <ul class="nav-list" id="navList">
+        <!-- populated by app.js -->
+      </ul>
+    </nav>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <main class="app-main" id="appMain">
+
+      <!-- ---------- Overview ---------- -->
+      <section class="tab-panel" id="panel-overview" data-panel="overview">
+        <h1 class="panel-title">Overview</h1>
+        <p class="panel-lede" id="overviewDescription"></p>
+        <div class="stat-tile-row" id="statTileRow"></div>
+      </section>
+
+      <!-- ---------- Provider Lookup ---------- -->
+      <section class="tab-panel" id="panel-providerLookup" data-panel="providerLookup" hidden>
+        <div class="profile-header-row">
+          <h1 class="panel-title">Provider Lookup</h1>
+          <span class="verified-badge" id="verifiedBadge">Match Found &#10003;</span>
+        </div>
+        <p class="panel-lede">
+          Requires both Provider Name and Provider NPI before searching. Result shown below is for the last
+          two-factor lookup: <strong>Dr. Amara Okafor</strong> / NPI <strong>1740283961</strong>.
+        </p>
+        <div class="profile-card" id="profileCard"></div>
+      </section>
+
+      <!-- ---------- Network Participation ---------- -->
+      <section class="tab-panel" id="panel-networkParticipation" data-panel="networkParticipation" hidden>
+        <h1 class="panel-title">Network Participation</h1>
+        <div class="table-wrap">
+          <table class="data-table" id="networkParticipationTable">
+            <thead>
+              <tr><th>Network Name</th><th>Status</th><th>Tier</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Service Locations ---------- -->
+      <section class="tab-panel" id="panel-serviceLocations" data-panel="serviceLocations" hidden>
+        <h1 class="panel-title">Service Locations</h1>
+        <div class="table-wrap">
+          <table class="data-table" id="serviceLocationsTable">
+            <thead>
+              <tr><th>Location Name</th><th>Address</th><th>City</th><th>State</th><th>Country</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Knowledge FAQ ---------- -->
+      <section class="tab-panel" id="panel-knowledgeFaq" data-panel="knowledgeFaq" hidden>
+        <h1 class="panel-title">Knowledge FAQ</h1>
+        <p class="panel-lede">
+          Answered by the General FAQ subagent via knowledge search — for policy and procedure questions
+          outside of provider network lookups.
+        </p>
+        <div class="faq-list" id="faqList"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===================== FLOATING CHAT LAUNCHER ===================== -->
+<button class="chat-launcher" id="chatLauncher" aria-label="Open Agentforce chat">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <path d="M4 5H20V16H8L4 20V5Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="9" cy="10.5" r="1" fill="white"/>
+    <circle cx="12" cy="10.5" r="1" fill="white"/>
+    <circle cx="15" cy="10.5" r="1" fill="white"/>
+  </svg>
+</button>
+
+<div class="chat-stub-panel" id="chatStubPanel" hidden>
+  <div class="chat-stub-header">
+    <span>Agentforce Chat</span>
+    <button id="chatStubClose" aria-label="Close chat panel">&times;</button>
+  </div>
+  <div class="chat-stub-body">
+    <p>This is where the live Agentforce agent will appear once embedded.</p>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+
+<!-- ============================================================
+     AGENTFORCE EMBED SCRIPT
+     Paste the Agentforce Agent embedded-service bootstrap script
+     here to enable the live chat experience for this demo.
+     ============================================================ -->
+<!-- <script src="REPLACE_WITH_AGENTFORCE_EMBED_SCRIPT_URL"></script> -->
+</body>
+</html>

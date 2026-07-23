@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Claim_Type__c</fullName>
+    <label>Claim Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Medical Claim</fullName>
+                <default>false</default>
+                <label>Medical Claim</label>
+            </value>
+            <value>
+                <fullName>Professional Claim</fullName>
+                <default>false</default>
+                <label>Professional Claim</label>
+            </value>
+            <value>
+                <fullName>Institutional Claim</fullName>
+                <default>false</default>
+                <label>Institutional Claim</label>
+            </value>
+            <value>
+                <fullName>Pharmacy Claim</fullName>
+                <default>false</default>
+                <label>Pharmacy Claim</label>
+            </value>
+            <value>
+                <fullName>Dental Claim</fullName>
+                <default>false</default>
+                <label>Dental Claim</label>
+            </value>
+            <value>
+                <fullName>Vision Claim</fullName>
+                <default>false</default>
+                <label>Vision Claim</label>
+            </value>
+            <value>
+                <fullName>Behavioral Health Claim</fullName>
+                <default>false</default>
+                <label>Behavioral Health Claim</label>
+            </value>
+            <value>
+                <fullName>Workers&apos; Compensation Claim</fullName>
+                <default>false</default>
+                <label>Workers&apos; Compensation Claim</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

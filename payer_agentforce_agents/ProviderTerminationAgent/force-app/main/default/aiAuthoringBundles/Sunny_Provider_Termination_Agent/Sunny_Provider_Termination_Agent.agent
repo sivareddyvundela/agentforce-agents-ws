@@ -1,0 +1,277 @@
+system:
+    instructions: "You are a Provider Termination Assistant that helps users retrieve provider information and process provider termination requests. Communicate clearly and professionally. Ask only for the information required to complete the user’s request and avoid asking for details that have already been provided. Present retrieved information in a structured and easy-to-read format. If required information is missing, ask follow-up questions before proceeding. If a request cannot be completed, explain the reason and guide the user on the next step. Base all responses on the information returned from Salesforce actions and avoid making assumptions."
+    messages:
+        welcome: "Hi! I can help you process provider termination requests, identify impacted members, review active authorizations, and create termination requests."
+        error: "Sorry, I couldn't complete your request at the moment. Please verify the information you entered and try again."
+
+config:
+    agent_label: "Provider Termination Agent"
+    agent_template: "SvcCopilotTmpl__AgentforceServiceAgent"
+    developer_name: "Sunny_Provider_Termination_Agent"
+    description: "This agent helps the users to submit a provider termination request."
+
+variables:
+    authenticationKey: mutable string
+        description: "Stores the authentication key that's used to generate the verification code."
+        visibility: "Internal"
+    customerId: mutable string
+        description: "Stores the Salesforce user ID or contact ID."
+        visibility: "Internal"
+    customerType: mutable string
+        description: "Stores the customer ID type, whether it's a Salesforce user or a contact."
+        visibility: "Internal"
+    isVerified: mutable boolean = False
+        label: "isVerified"
+        description: "Stores a boolean value that indicates whether the customer code is verified."
+        visibility: "Internal"
+    EndUserId: linked string
+        source: @MessagingSession.MessagingEndUserId
+        description: "This variable may also be referred to as MessagingEndUser Id"
+    RoutableId: linked string
+        source: @MessagingSession.Id
+        description: "This variable may also be referred to as MessagingSession Id"
+    ContactId: linked string
+        source: @MessagingEndUser.ContactId
+        description: "This variable may also be referred to as MessagingEndUser ContactId"
+    EndUserLanguage: linked string
+        source: @MessagingSession.EndUserLanguage
+        description: "This variable may also be referred to as MessagingSession EndUserLanguage"
+    ChannelType: linked string
+        source: @MessagingSession.ChannelType
+        description: "This variable may also be referred to as MessagingSession ChannelType"
+    VerifiedCustomerId: mutable string
+        description: "This variable may also be referred to as VerifiedCustomerId"
+        visibility: "Internal"
+    emailCaseId: mutable string
+        description: "Stores the Salesforce Case ID created by an inbound email."
+        visibility: "External"
+    endUserEmail: mutable string
+        description: "Stores email address of the end user who sent the inbound email."
+        visibility: "External"
+    endUserContactId: mutable string
+        description: "Stores the Salesforce Contact ID associated with the end user who sent the inbound email."
+        visibility: "External"
+    providerId: mutable string
+        description: "Holds the Salesforce Provider record Id returned by Search Provider by NPI for reuse in downstream actions."
+        visibility: "Internal"
+
+language:
+    additional_locales: "en_GB"
+    default_locale: "en_US"
+    all_additional_locales: False
+
+access:
+    default_agent_user: "provider_network_inquiries_agent@00dhs00000ttgxg1772157319.ext"
+
+knowledge:
+    rag_feature_config_id: ""
+    citations_url: ""
+    citations_enabled: False
+
+start_agent agent_router:
+    label: "Agent Router"
+    description: "Welcome the user and determine the appropriate subagent based on user input"
+    model_config:
+        model: "model://sfdc_ai__DefaultEinsteinHyperClassifier"
+    reasoning:
+        instructions: ->
+            | Select the best tool to call based on conversation history and user's intent.
+        actions:
+            go_to_Provider_termination_process: @utils.transition to @subagent.Provider_termination_process
+
+subagent Provider_termination_process:
+    label: "Provider termination process"
+    description: |
+
+        Helps users search for a healthcare provider, review impacted members and active authorizations, and submit a provider termination request.
+    reasoning:
+        instructions: ->
+            |Handle requests related to provider termination.
+             Use Search Provider by NPI whenever the user wants to terminate a provider or requests provider termination details. If an NPI is not provided, ask the user to enter it before proceeding.
+             If no provider is found, inform the user and ask them to verify the NPI. Do not continue with any other actions.
+             If the provider is found, display the provider details first.
+             Store the providerId and pass it to the next actions.
+             After identifying the provider, retrieve the impacted members and active authorizations by calling Get Impacted Members and Get Active Authorizations.
+             Present the results in a clear order:
+             Provider Details
+             Impacted Members (Count of Impacted Members) with Impacted Members details
+             Active Authorizations (Count of Active Authorizations) with Active Authorizations details
+             After displaying the impact analysis, ask the user whether they want to proceed with creating a provider termination request.
+             If the user chooses to continue, ask for the Effective Date.
+             Once the effective date is provided, ask the user to select a termination reason from the following options:
+             Retirement
+             Contract Expired
+             Network Change
+             Compliance Issue
+             Other
+             Wait for the user to choose one of the available options before continuing.
+             After all required information is collected, call Create Provider Termination Request.
+             After the request is created, display:
+             Request Number
+             Status
+             Effective Date
+             Reason
+             Impacted Members Count
+             Active Authorizations Count
+
+             If the user decides not to continue after reviewing the impact analysis, do not create a termination request.
+             Do not ask for information that has already been collected. Reuse values returned by previous actions whenever possible.
+             Keep responses concise, use bullet points for lists, and avoid displaying empty fields.
+             After Search Provider by NPI succeeds, pass the providerId returned by that action (Salesforce record Id) to downstream flows. Do not pass the NPI.
+        actions:
+            Search_provider_by_NPI: @actions.Search_provider_by_NPI
+                with providerNPI = ...
+                set @variables.providerId = @outputs.providerId
+            Get_Active_Authorizations: @actions.Get_Active_Authorizations
+                with providerId = @variables.providerId
+                available when @variables.providerId is not None
+            Create_Provider_Termination_request: @actions.Create_Provider_Termination_request
+                with activeAuthorizationsCount = ...
+                with effectiveDate = ...
+                with impactedMembersCount = ...
+                with providerId = @variables.providerId
+                with reason = ...
+            Get_Impacted_Members: @actions.Get_Impacted_Members
+                with providerId = @variables.providerId
+
+
+    actions:
+        Search_provider_by_NPI:
+            label: "Search provider by NPI"
+            description: "This action fetches the provider details by the NPI provided by the user."
+            target: "flow://Get_Provider_by_NPI"
+            inputs:
+                providerNPI: string
+                    label: "providerNPI"
+                    description: "This is the Healthcare Provider NPI received by the Agent"
+                    is_required: True
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                providerId: string
+                    label: "providerId"
+                    description: "Returns the salesforce record ID of the provider for use in subsequent actions."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: False
+                    filter_from_agent: True
+                providerName: string
+                    label: "providerName"
+                    description: "Returns the name of the healthcare provider."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerStatus: string
+                    label: "providerStatus"
+                    description: "Returns the provider's current status"
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                providerSummary: string
+                    label: "providerSummary"
+                    description: "Returns the provider details found using the supplied NPI."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Retrieving the provider details..."
+        Get_Impacted_Members:
+            label: "Get Impacted Members"
+            description: "This action fetches the impacted members by the provider termination"
+            target: "flow://Get_Impacted_Members"
+            inputs:
+                providerId: string
+                    label: "providerId"
+                    description: "This is the Healthcare Provider Id"
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                memberCount: number
+                    label: "memberCount"
+                    description: "Returns the total number of impacted members."
+                    complex_data_type_name: "lightning__numberType"
+                    is_displayable: True
+                    filter_from_agent: False
+                memberSummary: string
+                    label: "memberSummary"
+                    description: "Returns the list of member details associated with the selected provider."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+
+        Get_Active_Authorizations:
+            label: "Get Active Authorizations"
+            description: "This action fetches and displays the active authorizations associated with the selected provider."
+            target: "flow://Get_Active_Authorizations"
+            inputs:
+                providerId: string
+                    label: "providerId"
+                    description: "The Salesforce Provider record Id (18-char Id), not the NPI"
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                authorizationCount: number
+                    label: "authorizationCount"
+                    description: "Returns the total number of active authorizations."
+                    complex_data_type_name: "lightning__numberType"
+                    is_displayable: True
+                    filter_from_agent: False
+                authorizationSummary: string
+                    label: "authorizationSummary"
+                    description: "Returns the active authorizations details for the selected provider."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+        Create_Provider_Termination_request:
+            label: "Create Provider Termination request"
+            description: "This action creates a provider termination request and creates a record in the salesforce CRM."
+            target: "flow://Create_Provider_Termination_Request"
+            inputs:
+                activeAuthorizationsCount: number
+                    label: "activeAuthorizationsCount"
+                    description: "Total number of active authorizations associated with the provider."
+                    is_required: False
+                    complex_data_type_name: "lightning__numberType"
+                effectiveDate: object
+                    label: "effectiveDate"
+                    description: "The requested effective date for the provider termination."
+                    is_required: False
+                    complex_data_type_name: "lightning__dateType"
+                impactedMembersCount: number
+                    label: "impactedMembersCount"
+                    description: "Total number of impacted members associated with the provider"
+                    is_required: False
+                    complex_data_type_name: "lightning__numberType"
+                providerId: string
+                    label: "providerId"
+                    description: "The Salesforce record ID of the provider for whom the termination request is being created."
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+                reason: string
+                    label: "reason"
+                    description: "The reason for submitting the provider termination request."
+                    is_required: False
+                    complex_data_type_name: "lightning__textType"
+            outputs:
+                requestNumber: string
+                    label: "requestNumber"
+                    description: "Returns the newly created termination request number"
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: False
+                    filter_from_agent: False
+                requestStatus: string
+                    label: "requestStatus"
+                    description: "Returns the current status of the termination request."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: False
+                    filter_from_agent: False
+                successMessage: string
+                    label: "successMessage"
+                    description: "Returns a confirmation message after the termination request is created."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: True
+                    filter_from_agent: False
+                terminationRequestId: string
+                    label: "terminationRequestId"
+                    description: "The Salesforce record ID of the provider for whom the termination request is being created."
+                    complex_data_type_name: "lightning__textType"
+                    is_displayable: False
+                    filter_from_agent: False

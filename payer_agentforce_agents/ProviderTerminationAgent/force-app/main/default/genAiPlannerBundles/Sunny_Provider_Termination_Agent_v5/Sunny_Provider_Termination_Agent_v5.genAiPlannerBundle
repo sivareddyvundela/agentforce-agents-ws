@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>This agent helps the users to submit a provider termination request.</description>
+    <localTopicLinks>
+        <genAiPluginName>Provider_termination_process_16jHs000000Xf46</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jHs000000Xf46</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>Provider_termination_process_16jHs000000Xf46</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Helps users search for a healthcare provider, review impacted members and active authorizations, and submit a provider termination request.</description>
+        <developerName>Provider_termination_process_16jHs000000Xf46</developerName>
+        <genAiPluginInstructions>
+            <description>You are a Provider Termination Assistant that helps users retrieve provider information and process provider termination requests. Communicate clearly and professionally. Ask only for the information required to complete the user’s request and avoid asking for details that have already been provided. Present retrieved information in a structured and easy-to-read format. If required information is missing, ask follow-up questions before proceeding. If a request cannot be completed, explain the reason and guide the user on the next step. Base all responses on the information returned from Salesforce actions and avoid making assumptions.</description>
+            <developerName>instruction0_179Hs000000HEs9</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179Hs000000HEs9</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Search_provider_by_NPI_179Hs000000HEs9</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Get_Impacted_Members_179Hs000000HEs9</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Create_Provider_Termination_request_179Hs000000HEs9</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Get_Active_Authorizations_179Hs000000HEs9</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Create_Provider_Termination_request_179Hs000000HEs9</fullName>
+            <description>This action creates a provider termination request and creates a record in the salesforce CRM.</description>
+            <developerName>Create_Provider_Termination_request_179Hs000000HEs9</developerName>
+            <invocationTarget>Create_Provider_Termination_Request</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Create_Provider_Termination_request</localDeveloperName>
+            <masterLabel>Create Provider Termination request</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Get_Impacted_Members_179Hs000000HEs9</fullName>
+            <description>This action fetches the impacted members by the provider termination</description>
+            <developerName>Get_Impacted_Members_179Hs000000HEs9</developerName>
+            <invocationTarget>Get_Impacted_Members</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Impacted_Members</localDeveloperName>
+            <masterLabel>Get Impacted Members</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Get_Active_Authorizations_179Hs000000HEs9</fullName>
+            <description>This action fetches and displays the active authorizations associated with the selected provider.</description>
+            <developerName>Get_Active_Authorizations_179Hs000000HEs9</developerName>
+            <invocationTarget>Get_Active_Authorizations</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Active_Authorizations</localDeveloperName>
+            <masterLabel>Get Active Authorizations</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Search_provider_by_NPI_179Hs000000HEs9</fullName>
+            <description>This action fetches the provider details by the NPI provided by the user.</description>
+            <developerName>Search_provider_by_NPI_179Hs000000HEs9</developerName>
+            <invocationTarget>Get_Provider_by_NPI</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Search_provider_by_NPI</localDeveloperName>
+            <masterLabel>Search provider by NPI</masterLabel>
+            <progressIndicatorMessage>Retrieving the provider details...</progressIndicatorMessage>
+        </localActions>
+        <localDeveloperName>Provider_termination_process</localDeveloperName>
+        <masterLabel>Provider termination process</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>agent_router_16jHs000000Xf46</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the user and determine the appropriate subagent based on user input</description>
+        <developerName>agent_router_16jHs000000Xf46</developerName>
+        <genAiPluginInstructions>
+            <description>You are a Provider Termination Assistant that helps users retrieve provider information and process provider termination requests. Communicate clearly and professionally. Ask only for the information required to complete the user’s request and avoid asking for details that have already been provided. Present retrieved information in a structured and easy-to-read format. If required information is missing, ask follow-up questions before proceeding. If a request cannot be completed, explain the reason and guide the user on the next step. Base all responses on the information returned from Salesforce actions and avoid making assumptions.
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179Hs000000HEs8</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179Hs000000HEs8</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Provider Termination Agent</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

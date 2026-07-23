@@ -1,0 +1,21 @@
+{
+  "required" : [ "employerName", "employerAccountNumber" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "employerAccountNumber" : {
+      "title" : "Employer Account Number",
+      "description" : "Employer Account Number provided by the user.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "employerName" : {
+      "title" : "Employer Name",
+      "description" : "Employer Account Name provided by the user.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

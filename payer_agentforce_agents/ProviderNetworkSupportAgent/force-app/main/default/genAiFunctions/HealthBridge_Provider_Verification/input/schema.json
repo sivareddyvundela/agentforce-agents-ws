@@ -1,0 +1,28 @@
+{
+  "required" : [ "npi", "providerName", "providerPhone" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "npi" : {
+      "title" : "NPI",
+      "description" : "National Provider Identifier",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "providerName" : {
+      "title" : "Provider Name",
+      "description" : "Full name of the provider to verify",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "providerPhone" : {
+      "title" : "Provider Phone",
+      "description" : "Provider phone number",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

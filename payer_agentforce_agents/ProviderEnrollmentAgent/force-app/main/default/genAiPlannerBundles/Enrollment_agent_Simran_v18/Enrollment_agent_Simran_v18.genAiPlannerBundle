@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Automate common business tasks and assist users in their flow of work. Agentforce Employee Agent can search knowledge articles and other data sources. Customize it further to meet your employees&apos; business needs.</description>
+    <localTopicLinks>
+        <genAiPluginName>Provider_demographics_check_16jfj0000023LbR</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jfj0000023LbR</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>agent_router_16jfj0000023LbR</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the user and determine the appropriate subagent based on user input</description>
+        <developerName>agent_router_16jfj0000023LbR</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.
+
+    The user&apos;s current context is:
+    Current App Name: {!@variables.currentAppName}
+    Current Object Name: {!@variables.currentObjectApiName}
+    Current Page Type: {!@variables.currentPageType}
+    Current Record ID: {!@variables.currentRecordId}
+messages:
+    welcome: |
+        Hi, I’m Agentforce! I use AI to search trusted sources, and more. Ask me &quot;What else can you do?&quot; to see how I can simplify your workday. How can I help?
+    error: &quot;Something went wrong. Try again.&quot;
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179fj000002tSiT</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002tSiT</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Provider_demographics_check_16jfj0000023LbR</fullName>
+        <canEscalate>false</canEscalate>
+        <description>This subagent helps the end user to raise a request for new enrollment.</description>
+        <developerName>Provider_demographics_check_16jfj0000023LbR</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.
+
+    The user&apos;s current context is:
+    Current App Name: {{state.currentAppName}}
+    Current Object Name: {{state.currentObjectApiName}}
+    Current Page Type: {{state.currentPageType}}
+    Current Record ID: {{state.currentRecordId}}
+messages:
+    welcome: |
+        Hi, I’m Agentforce! I use AI to search trusted sources, and more. Ask me &quot;What else can you do?&quot; to see how I can simplify your workday. How can I help?
+    error: &quot;Something went wrong. Try again.&quot;</description>
+            <developerName>instruction0_179fj000002tSiU</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002tSiU</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Enrollment_Creation_179fj000002tSiU</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Enrollment_Creation_179fj000002tSiU</fullName>
+            <description>This agent is solely designed to assist with the enrollment process by collecting the required details and upload the required documents from the user. Once the enrollment is successfully submitted, the agent displays a confirmation message indicating that the enrollment process has been completed successfully</description>
+            <developerName>Enrollment_Creation_179fj000002tSiU</developerName>
+            <invocationTarget>EnrollmentCreationService</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Enrollment_Creation</localDeveloperName>
+            <masterLabel>Enrollment Creation</masterLabel>
+        </localActions>
+        <localDeveloperName>Provider_demographics_check</localDeveloperName>
+        <masterLabel>Provider demographics check</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Enrollment agent Simran</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

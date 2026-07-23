@@ -1,0 +1,21 @@
+{
+  "required" : [ "credentialNumber" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "credentialNumber" : {
+      "title" : "credentialNumber",
+      "description" : "The number selected by the user from the list of credential records.",
+      "lightning:type" : "lightning__numberType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "providerId" : {
+      "title" : "providerId",
+      "description" : "The Provider ID of the provider whose credential details need to be retrieved. Use the providerId identified earlier in the conversation.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

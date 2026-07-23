@@ -1,0 +1,14 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "contractSummary" : {
+      "title" : "contractSummary",
+      "description" : "Contains all contract records found for the selected healthcare provider. Use this output to answer contract-related questions and show all contract records returned.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>healthEdge AI - Provider Contract Inquiry</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="he-login-page">
+
+    <!-- ============================= LEFT: MARKETING PANEL ============================= -->
+    <section class="he-marketing-panel">
+      <div class="he-marketing-inner">
+        <div class="he-brand-row">
+          <div class="he-brand-mark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b1220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 3 7v6c0 5 4 9 9 9s9-4 9-9V7l-9-5Z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+          </div>
+          <div class="he-wordmark">health<span>Edge</span> AI</div>
+        </div>
+
+        <div class="he-eyebrow">Internal Tool &middot; Contract Operations</div>
+
+        <h1 class="he-hero-heading">Provider contract answers, <em>in seconds not tickets.</em></h1>
+        <p class="he-hero-sub">
+          The Provider Contract Inquiry Agent gives network and contract-ops staff instant, conversational
+          access to contract terms, network tiers, fee schedules, and amendment history &mdash; and proactively
+          flags anything expiring soon.
+        </p>
+
+        <div class="he-badges">
+          <div class="he-badge">
+            <div class="he-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <div class="he-badge-label">Contract Lookup by Number, Name, or NPI</div>
+          </div>
+
+          <div class="he-badge">
+            <div class="he-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+                <line x1="9" y1="10" x2="9" y2="20"></line>
+              </svg>
+            </div>
+            <div class="he-badge-label">Fee Schedule Drill-Down</div>
+          </div>
+
+          <div class="he-badge">
+            <div class="he-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <polyline points="12 7 12 12 15.5 14"></polyline>
+              </svg>
+            </div>
+            <div class="he-badge-label">Amendment History</div>
+          </div>
+
+          <div class="he-badge">
+            <div class="he-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <div class="he-badge-label">Expiration Alerts &amp; Renewal Recommendations</div>
+          </div>
+        </div>
+
+        <div class="he-try-asking">
+          <h3>Try asking&hellip;</h3>
+          <ul>
+            <li>&ldquo;Look up contract 00000105.&rdquo;</li>
+            <li>&ldquo;Show me the contract for Dr. John Smith.&rdquo;</li>
+            <li>&ldquo;What&rsquo;s the contract for NPI 1234567890?&rdquo;</li>
+            <li>&ldquo;What&rsquo;s the amendment history on this contract?&rdquo;</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="he-marketing-footer">Powered by Salesforce Agentforce</div>
+    </section>
+
+    <!-- ============================= RIGHT: LOGIN PANEL ============================= -->
+    <section class="he-login-panel">
+      <div class="he-login-card">
+        <div class="he-login-brand">
+          <div class="he-brand-mark" style="width:28px;height:28px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0b1220" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 3 7v6c0 5 4 9 9 9s9-4 9-9V7l-9-5Z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+          </div>
+          <div class="he-wordmark">health<span>Edge</span> AI</div>
+        </div>
+
+        <h2 class="he-login-title">Provider Contract Inquiry</h2>
+        <p class="he-login-subtitle">Sign in with your contract-ops credentials to continue.</p>
+
+        <div id="he-login-error" class="he-error-msg"></div>
+
+        <form id="he-login-form" novalidate>
+          <div class="he-field">
+            <label for="he-username">Username</label>
+            <input type="text" id="he-username" name="username" autocomplete="username" required>
+          </div>
+          <div class="he-field">
+            <label for="he-password">Password</label>
+            <input type="password" id="he-password" name="password" autocomplete="current-password" required>
+          </div>
+          <button type="submit" class="he-btn-primary">Sign In</button>
+        </form>
+
+        <div class="he-demo-hint">
+          <strong>Demo Credentials</strong><br>
+          Username: <code>contract.analyst</code><br>
+          Password: <code>Demo@123</code>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

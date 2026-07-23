@@ -1,0 +1,14 @@
+{
+  "required" : [ "enrollmentData" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "enrollmentData" : {
+      "title" : "enrollmentData",
+      "description" : "Take input from user",
+      "lightning:type" : "c__newui",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

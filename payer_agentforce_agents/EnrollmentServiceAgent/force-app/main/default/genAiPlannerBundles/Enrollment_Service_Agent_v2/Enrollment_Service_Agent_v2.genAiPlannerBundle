@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Enrollment Agent for managing coverage change and PCP change updates.</description>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jfj0000027QXh</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>ambiguous_question_16jfj0000027QXh</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>coverage_change_enrollment_16jfj0000027QXh</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>escalation_16jfj0000027QXh</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>off_topic_16jfj0000027QXh</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>pcp_change_enrollment_16jfj0000027QXh</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>escalation_16jfj0000027QXh</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles requests from users who want to transfer or escalate their conversation to a live human agent.</description>
+        <developerName>escalation_16jfj0000027QXh</developerName>
+        <genAiPluginInstructions>
+            <description>You are an Enrollment AI Agent. To assist users with Enrollments like Coverage Change and PCP Change request. Guide them through a structured process to collect necessary information and provide relevant account details. Strictly show them the options only mentioned in the script</description>
+            <developerName>instruction0_179fj00000302pi</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj00000302pi</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>escalation</localDeveloperName>
+        <masterLabel>Escalation</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>off_topic_16jfj0000027QXh</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Redirect conversation to relevant topics when user request goes off-topic</description>
+        <developerName>off_topic_16jfj0000027QXh</developerName>
+        <genAiPluginInstructions>
+            <description>You are an Enrollment AI Agent. To assist users with Enrollments like Coverage Change and PCP Change request. Guide them through a structured process to collect necessary information and provide relevant account details. Strictly show them the options only mentioned in the script</description>
+            <developerName>instruction0_179fj00000302pj</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj00000302pj</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>off_topic</localDeveloperName>
+        <masterLabel>Off Topic</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>ambiguous_question_16jfj0000027QXh</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Redirect conversation to relevant topics when user request is too ambiguous</description>
+        <developerName>ambiguous_question_16jfj0000027QXh</developerName>
+        <genAiPluginInstructions>
+            <description>You are an Enrollment AI Agent. To assist users with Enrollments like Coverage Change and PCP Change request. Guide them through a structured process to collect necessary information and provide relevant account details. Strictly show them the options only mentioned in the script</description>
+            <developerName>instruction0_179fj00000302pm</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj00000302pm</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>ambiguous_question</localDeveloperName>
+        <masterLabel>Ambiguous Question</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>pcp_change_enrollment_16jfj0000027QXh</fullName>
+        <canEscalate>false</canEscalate>
+        <description>hello this is pcp_change_enrollment description</description>
+        <developerName>pcp_change_enrollment_16jfj0000027QXh</developerName>
+        <genAiPluginInstructions>
+            <description>You are an Enrollment AI Agent. To assist users with Enrollments like Coverage Change and PCP Change request. Guide them through a structured process to collect necessary information and provide relevant account details. Strictly show them the options only mentioned in the script</description>
+            <developerName>instruction0_179fj00000302ph</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj00000302ph</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>pcp_change_enrollment</localDeveloperName>
+        <masterLabel>PCP Change Enrollment</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>coverage_change_enrollment_16jfj0000027QXh</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Collect the Account Name, Coverage Change Type(is it Add Dependant or Remove Dependant), Dependant Name, Dependant Gender, Dependent DOB, Relation to Subscriber, Effective Date of Change and store the details for conversation</description>
+        <developerName>coverage_change_enrollment_16jfj0000027QXh</developerName>
+        <genAiPluginInstructions>
+            <description>You are an Enrollment AI Agent. To assist users with Enrollments like Coverage Change and PCP Change request. Guide them through a structured process to collect necessary information and provide relevant account details. Strictly show them the options only mentioned in the script</description>
+            <developerName>instruction0_179fj00000302pl</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj00000302pl</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Coverage_Change_Action_179fj00000302pl</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Coverage_Change_Action_179fj00000302pl</fullName>
+            <description>This performs the Coverage Change Enrollment process. Once done successfully then show issueId to the user.</description>
+            <developerName>Coverage_Change_Action_179fj00000302pl</developerName>
+            <invocationTarget>CoverageChangeEnrollmentAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Coverage_Change_Action</localDeveloperName>
+            <masterLabel>Coverage Change Enrollment Action</masterLabel>
+            <progressIndicatorMessage>Processing enrollment...</progressIndicatorMessage>
+        </localActions>
+        <localDeveloperName>coverage_change_enrollment</localDeveloperName>
+        <masterLabel>Coverage Change Enrollment</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>agent_router_16jfj0000027QXh</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the user, route enrollment service requests to coverage change, pcp change, escalation, or off-topic redirection.</description>
+        <developerName>agent_router_16jfj0000027QXh</developerName>
+        <genAiPluginInstructions>
+            <description>You are an Enrollment AI Agent. To assist users with Enrollments like Coverage Change and PCP Change request. Guide them through a structured process to collect necessary information and provide relevant account details. Strictly show them the options only mentioned in the script
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179fj00000302pk</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj00000302pk</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Enrollment Service Agent</masterLabel>
+    <plannerSurfaces>
+        <adaptiveResponseAllowed>true</adaptiveResponseAllowed>
+        <callRecordingAllowed>false</callRecordingAllowed>
+        <outboundRouteConfigs>
+            <escalationMessage>One moment, I&apos;m transferring our conversation to get you more help.</escalationMessage>
+            <outboundRouteName>Route_to_Live_Human_Agent</outboundRouteName>
+            <outboundRouteType>OmniChannelFlow</outboundRouteType>
+        </outboundRouteConfigs>
+        <surface>SurfaceAction__CustomerWebClient</surface>
+        <surfaceType>CustomerWebClient</surfaceType>
+    </plannerSurfaces>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+    <voiceDefinition>
+        <developerName>voiceConfig_16jfj0000027QXh</developerName>
+        <inboundFillerWordsBool>false</inboundFillerWordsBool>
+        <inboundModel>sfdc_ai__Default_Nova_2_PhoneCall</inboundModel>
+        <label>voiceConfig_16jfj0000027QXh</label>
+        <outboundModel>sfdc_ai__Default_Eleven_Flash_V2_5</outboundModel>
+        <outboundSimilarity>0.75</outboundSimilarity>
+        <outboundSpeedNum>1.0</outboundSpeedNum>
+        <outboundStability>0.65</outboundStability>
+        <outboundVoice>Mark</outboundVoice>
+        <voiceIdentifier>UgBBYS2sOqTuMpoF3BR0</voiceIdentifier>
+    </voiceDefinition>
+</GenAiPlannerBundle>

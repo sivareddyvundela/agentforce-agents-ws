@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Retrieves a member&apos;s claims and explains denial reasons.</description>
+    <developerName>Healthbridge_Member_Claims</developerName>
+    <invocationTarget>MemberClaimAction</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Healthbridge_Member_Claims</localDeveloperName>
+    <masterLabel>Healthbridge Member Claims</masterLabel>
+    <progressIndicatorMessage>Fetching Claims......</progressIndicatorMessage>
+</GenAiFunction>

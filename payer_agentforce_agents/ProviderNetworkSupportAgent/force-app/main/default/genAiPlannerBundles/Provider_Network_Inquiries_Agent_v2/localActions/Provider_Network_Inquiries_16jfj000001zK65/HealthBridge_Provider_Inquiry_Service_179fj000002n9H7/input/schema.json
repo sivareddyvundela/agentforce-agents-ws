@@ -1,0 +1,15 @@
+{
+  "required" : [ "healthcareProviderId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "healthcareProviderId" : {
+      "title" : "Healthcare Provider Id",
+      "description" : "Healthcare Provider Id",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType",
+  "lightning:textIndexed" : true
+}

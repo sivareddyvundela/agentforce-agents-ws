@@ -1,0 +1,204 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>healthEdge AI - Enrollment Services</title>
+<link rel="stylesheet" href="assets/css/style.css">
+
+<div class="app-shell">
+
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="header-wordmark">
+      healthEdge <span class="brand-accent">AI</span>
+      <span class="header-divider">|</span>
+      <span class="header-title">Enrollment Services</span>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </header>
+
+  <div class="app-body">
+
+    <nav class="sidebar" id="sidebar">
+      <ul class="nav-list" id="navList">
+        <li class="nav-item active" data-tab="overview">
+          <span class="nav-icon" aria-hidden="true">&#9673;</span> Overview
+        </li>
+        <li class="nav-item" data-tab="coverage">
+          <span class="nav-icon" aria-hidden="true">&#128179;</span> My Coverage
+        </li>
+        <li class="nav-item" data-tab="dependents">
+          <span class="nav-icon" aria-hidden="true">&#128101;</span> Dependents
+        </li>
+        <li class="nav-item" data-tab="requests">
+          <span class="nav-icon" aria-hidden="true">&#128257;</span> Coverage Change Requests
+        </li>
+        <li class="nav-item" data-tab="pcp">
+          <span class="nav-icon" aria-hidden="true">&#129658;</span> PCP Change <span class="soon-pill">Soon</span>
+        </li>
+        <li class="nav-item" data-tab="tracker">
+          <span class="nav-icon" aria-hidden="true">&#128269;</span> Case Tracker
+        </li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+
+      <!-- OVERVIEW -->
+      <section class="tab-panel active" id="tab-overview">
+        <h2 class="panel-heading">Overview</h2>
+        <p class="panel-subtext">
+          The Enrollment Service Agent lets members request coverage changes — adding or removing a
+          dependent — over chat or voice, without waiting on a phone queue. It collects the required
+          details, opens a Case automatically, and hands back a 5-digit Issue Id for tracking. It can
+          also escalate to a live representative on request.
+        </p>
+
+        <div class="stat-grid" id="statGrid">
+          <!-- stat tiles rendered by app.js -->
+        </div>
+
+        <div class="card overview-card">
+          <h3 class="card-title">Member Snapshot</h3>
+          <div class="member-snapshot" id="memberSnapshot">
+            <!-- rendered by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- MY COVERAGE -->
+      <section class="tab-panel" id="tab-coverage">
+        <h2 class="panel-heading">My Coverage</h2>
+        <p class="panel-subtext">Current plan details on file for this member.</p>
+        <div class="card">
+          <div class="coverage-grid" id="coverageGrid">
+            <!-- rendered by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- DEPENDENTS -->
+      <section class="tab-panel" id="tab-dependents">
+        <h2 class="panel-heading">Dependents</h2>
+        <p class="panel-subtext">Everyone currently covered — or pending a coverage change — under this plan.</p>
+        <div class="card table-card">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Gender</th>
+                  <th>Date of Birth</th>
+                  <th>Relation to Subscriber</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="dependentsTableBody">
+                <!-- rows rendered by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- COVERAGE CHANGE REQUESTS -->
+      <section class="tab-panel" id="tab-requests">
+        <h2 class="panel-heading">Coverage Change Requests</h2>
+        <p class="panel-subtext">Requests to add or remove a dependent, submitted through the Enrollment Service Agent.</p>
+        <div class="card table-card">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Issue Id</th>
+                  <th>Coverage Change Type</th>
+                  <th>Dependent Name</th>
+                  <th>Effective Date of Change</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="requestsTableBody">
+                <!-- rows rendered by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PCP CHANGE (COMING SOON) -->
+      <section class="tab-panel" id="tab-pcp">
+        <h2 class="panel-heading">PCP Change <span class="soon-pill soon-pill-lg">Coming Soon</span></h2>
+        <p class="panel-subtext">Change your Primary Care Provider directly from this portal.</p>
+        <div class="card empty-state">
+          <div class="empty-state-icon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6" fill="none"/>
+              <path d="M5 20c0-3.6 3.1-6.4 7-6.4s7 2.8 7 6.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+              <circle cx="12" cy="12" r="10.5" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 3" fill="none"/>
+            </svg>
+          </div>
+          <h3 class="empty-state-title">PCP Change Request is coming soon</h3>
+          <p class="empty-state-text">
+            The Enrollment Service Agent already advertises this option in its menu, but the underlying
+            workflow is still an unfinished stub with no real behavior yet. Once built, members will be
+            able to search, select, and confirm a new Primary Care Provider in the same conversation used
+            for coverage changes today.
+          </p>
+        </div>
+      </section>
+
+      <!-- CASE TRACKER -->
+      <section class="tab-panel" id="tab-tracker">
+        <h2 class="panel-heading">Case Tracker</h2>
+        <p class="panel-subtext">Look up the status of any coverage change request by its Issue Id.</p>
+        <div class="card table-card">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Issue Id</th>
+                  <th>Coverage Change Type</th>
+                  <th>Dependent Name</th>
+                  <th>Effective Date of Change</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="trackerTableBody">
+                <!-- rows rendered by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Floating chat launcher -->
+  <button class="chat-launcher" id="chatLauncher" aria-label="Open Agentforce chat">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+      <path d="M4 5h16v10H10l-4.5 4v-4H4V5z" fill="currentColor"/>
+    </svg>
+  </button>
+
+  <div class="chat-stub-panel" id="chatStubPanel" hidden>
+    <div class="chat-stub-header">
+      <span>Agentforce Assistant</span>
+      <button class="chat-stub-close" id="chatStubClose" aria-label="Close chat">&times;</button>
+    </div>
+    <div class="chat-stub-body">
+      <p>This is where the live Agentforce agent will appear once embedded.</p>
+    </div>
+  </div>
+
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+
+<!-- ============================================================
+     AGENTFORCE EMBED SCRIPT
+     Paste the Agentforce Agent embedded-service bootstrap script
+     here to enable the live chat experience for this demo.
+     ============================================================ -->
+<!-- <script src="REPLACE_WITH_AGENTFORCE_EMBED_SCRIPT_URL"></script> -->

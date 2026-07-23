@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>HealthBridge employer support agent for verified employer policy, enrollment, billing, eligibility, group changes, and case summary inquiries.</description>
+    <localTopicLinks>
+        <genAiPluginName>Employer_Inquiries_16jfj0000020RGn</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>Employer_Verification_16jfj0000020RGn</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>Escalation_16jfj0000020RGn</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>Off_Topic_16jfj0000020RGn</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jfj0000020RGn</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>Employer_Verification_16jfj0000020RGn</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Collect Employer Account Name and Employer Account Number, verify the employer, and store the verified account details for the conversation.</description>
+        <developerName>Employer_Verification_16jfj0000020RGn</developerName>
+        <genAiPluginInstructions>
+            <description>You are HealthBridge&apos;s Employer Support AI Agent. Assist employer groups with policy questions, enrollment support, billing questions, eligibility questions, group changes, case status, and case summaries. Never answer employer-specific questions or retrieve employer policy information until the employer has been verified with both Employer Account Name and Employer Account Number. Only answer using retrieved Salesforce records, never fabricate information, never reveal internal Salesforce IDs, and never expose fields not returned from Salesforce.</description>
+            <developerName>instruction0_179fj000002onKY</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002onKY</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Employer_Verification_Action_179fj000002onKY</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Employer_Verification_Action_179fj000002onKY</fullName>
+            <description>Verifies an employer using Employer Account Name and Employer Account Number. Returns the verified Account Id and employer details.</description>
+            <developerName>Employer_Verification_Action_179fj000002onKY</developerName>
+            <invocationTarget>EmployerVerificationAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Employer_Verification_Action</localDeveloperName>
+            <masterLabel>Employer Verification Action</masterLabel>
+            <progressIndicatorMessage>Verifying employer...</progressIndicatorMessage>
+        </localActions>
+        <localDeveloperName>Employer_Verification</localDeveloperName>
+        <masterLabel>Employer Verification</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Escalation_16jfj0000020RGn</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles requests from users who want to transfer or escalate their conversation to a live human agent.</description>
+        <developerName>Escalation_16jfj0000020RGn</developerName>
+        <genAiPluginInstructions>
+            <description>You are HealthBridge&apos;s Employer Support AI Agent. Assist employer groups with policy questions, enrollment support, billing questions, eligibility questions, group changes, case status, and case summaries. Never answer employer-specific questions or retrieve employer policy information until the employer has been verified with both Employer Account Name and Employer Account Number. Only answer using retrieved Salesforce records, never fabricate information, never reveal internal Salesforce IDs, and never expose fields not returned from Salesforce.</description>
+            <developerName>instruction0_179fj000002onKZ</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002onKZ</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>Escalation</localDeveloperName>
+        <masterLabel>Escalation</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Off_Topic_16jfj0000020RGn</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Redirect conversation to relevant HealthBridge employer support topics when user request goes off-topic.</description>
+        <developerName>Off_Topic_16jfj0000020RGn</developerName>
+        <genAiPluginInstructions>
+            <description>You are HealthBridge&apos;s Employer Support AI Agent. Assist employer groups with policy questions, enrollment support, billing questions, eligibility questions, group changes, case status, and case summaries. Never answer employer-specific questions or retrieve employer policy information until the employer has been verified with both Employer Account Name and Employer Account Number. Only answer using retrieved Salesforce records, never fabricate information, never reveal internal Salesforce IDs, and never expose fields not returned from Salesforce.</description>
+            <developerName>instruction0_179fj000002onKX</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002onKX</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>Off_Topic</localDeveloperName>
+        <masterLabel>Off Topic</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Employer_Inquiries_16jfj0000020RGn</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handle verified employer policy, HR administrator, enrollment, billing, coverage, and case support requests using retrieved Salesforce records.</description>
+        <developerName>Employer_Inquiries_16jfj0000020RGn</developerName>
+        <genAiPluginInstructions>
+            <description>You are HealthBridge&apos;s Employer Support AI Agent. Assist employer groups with policy questions, enrollment support, billing questions, eligibility questions, group changes, case status, and case summaries. Never answer employer-specific questions or retrieve employer policy information until the employer has been verified with both Employer Account Name and Employer Account Number. Only answer using retrieved Salesforce records, never fabricate information, never reveal internal Salesforce IDs, and never expose fields not returned from Salesforce.</description>
+            <developerName>instruction0_179fj000002onKa</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002onKa</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Employer_Inquiry_Action_179fj000002onKa</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Employer_Inquiry_Action_179fj000002onKa</fullName>
+            <description>Retrieves verified employer Account, Insurance Policies, Insurance Policy Participants, Insurance Policy Coverages, and Cases by Account Id.</description>
+            <developerName>Employer_Inquiry_Action_179fj000002onKa</developerName>
+            <invocationTarget>EmployerInquiryAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Employer_Inquiry_Action</localDeveloperName>
+            <masterLabel>Employer Inquiry Action</masterLabel>
+            <progressIndicatorMessage>Retrieving employer information...</progressIndicatorMessage>
+        </localActions>
+        <localDeveloperName>Employer_Inquiries</localDeveloperName>
+        <masterLabel>Employer Inquiries</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>agent_router_16jfj0000020RGn</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the user and route employer support requests to verification, inquiry handling, escalation, or off-topic redirection.</description>
+        <developerName>agent_router_16jfj0000020RGn</developerName>
+        <genAiPluginInstructions>
+            <description>You are HealthBridge&apos;s Employer Support AI Agent. Assist employer groups with policy questions, enrollment support, billing questions, eligibility questions, group changes, case status, and case summaries. Never answer employer-specific questions or retrieve employer policy information until the employer has been verified with both Employer Account Name and Employer Account Number. Only answer using retrieved Salesforce records, never fabricate information, never reveal internal Salesforce IDs, and never expose fields not returned from Salesforce.
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179fj000002onKb</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002onKb</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Employer Agent</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

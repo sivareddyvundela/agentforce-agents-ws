@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>healthEdge AI - Provider Search & Profile</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="dashboard-body">
+
+<div class="app-shell">
+
+  <!-- ===================== TOP HEADER ===================== -->
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="header-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L3 6V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V6L12 2Z" fill="url(#gradMarkH)"/>
+        <path d="M8.5 12.2L10.7 14.4L15.6 9.4" stroke="#111827" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="gradMarkH" x1="3" y1="2" x2="21" y2="23" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#EAB308"/>
+            <stop offset="1" stop-color="#F5D061"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="header-wordmark">healthEdge <strong>AI</strong></span>
+      <span class="header-divider">|</span>
+      <span class="header-title">Provider Search &amp; Profile</span>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </header>
+
+  <div class="app-body">
+
+    <!-- ===================== SIDEBAR NAV ===================== -->
+    <nav class="app-sidebar" id="appSidebar">
+      <ul class="nav-list" id="navList">
+        <!-- populated by app.js -->
+      </ul>
+    </nav>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <main class="app-main" id="appMain">
+
+      <!-- ---------- Overview ---------- -->
+      <section class="tab-panel" id="panel-overview" data-panel="overview">
+        <h1 class="panel-title">Overview</h1>
+        <p class="panel-lede" id="overviewDescription"></p>
+        <div class="stat-tile-row" id="statTileRow"></div>
+      </section>
+
+      <!-- ---------- Provider Search ---------- -->
+      <section class="tab-panel" id="panel-providerSearch" data-panel="providerSearch" hidden>
+        <h1 class="panel-title">Provider Search</h1>
+        <p class="panel-lede">
+          Search the provider directory by Name, NPI, or Tax ID. Select "View Profile" on any
+          row to make that provider the active record for the Credentials, Network
+          Participation, Active Contracts, Service Locations, and Compliance Issues tabs.
+        </p>
+
+        <div class="search-bar">
+          <span class="search-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="10.5" cy="10.5" r="6.5" stroke="#9CA3AF" stroke-width="1.8"/>
+              <path d="M15.3 15.3L20 20" stroke="#9CA3AF" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input type="text" id="providerSearchInput" placeholder="Search by Name, NPI, or Tax ID&hellip;" autocomplete="off">
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="providerSearchTable">
+            <thead>
+              <tr>
+                <th>Name</th><th>NPI</th><th>Tax ID</th><th>Specialty</th><th>Status</th>
+                <th>Type</th><th>Phone</th><th>Email</th><th>Board Cert.</th><th>Accepting</th><th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <p class="table-empty-state" id="providerSearchEmpty" hidden>No providers match your search.</p>
+        </div>
+      </section>
+
+      <!-- ---------- Credentials ---------- -->
+      <section class="tab-panel" id="panel-credentials" data-panel="credentials" hidden>
+        <h1 class="panel-title">Credentials</h1>
+        <div class="selected-provider-banner" id="banner-credentials"></div>
+        <div class="table-wrap">
+          <table class="data-table" id="credentialsTable">
+            <thead>
+              <tr><th>Status</th><th>Application Date</th><th>Current Stage</th><th>Assigned Analyst</th><th>Expected Completion</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Network Participation ---------- -->
+      <section class="tab-panel" id="panel-networkParticipation" data-panel="networkParticipation" hidden>
+        <h1 class="panel-title">Network Participation</h1>
+        <div class="selected-provider-banner" id="banner-networkParticipation"></div>
+        <div class="table-wrap">
+          <table class="data-table" id="networkParticipationTable">
+            <thead>
+              <tr><th>Network Name</th><th>Active</th><th>Line of Business</th><th>Effective Start</th><th>Effective End</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Active Contracts ---------- -->
+      <section class="tab-panel" id="panel-activeContracts" data-panel="activeContracts" hidden>
+        <h1 class="panel-title">Active Contracts</h1>
+        <div class="selected-provider-banner" id="banner-activeContracts"></div>
+        <div class="table-wrap">
+          <table class="data-table" id="activeContractsTable">
+            <thead>
+              <tr><th>Contract Name</th><th>Payer Network</th><th>Status</th><th>Start Date</th><th>End Date</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Service Locations ---------- -->
+      <section class="tab-panel" id="panel-serviceLocations" data-panel="serviceLocations" hidden>
+        <h1 class="panel-title">Service Locations</h1>
+        <div class="selected-provider-banner" id="banner-serviceLocations"></div>
+        <div class="table-wrap">
+          <table class="data-table" id="serviceLocationsTable">
+            <thead>
+              <tr><th>Location Name</th><th>Address</th><th>City</th><th>Country</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Compliance Issues ---------- -->
+      <section class="tab-panel" id="panel-complianceIssues" data-panel="complianceIssues" hidden>
+        <h1 class="panel-title">Compliance Issues</h1>
+        <div class="selected-provider-banner" id="banner-complianceIssues"></div>
+        <div class="table-wrap">
+          <table class="data-table" id="complianceIssuesTable">
+            <thead>
+              <tr><th>Issue Title</th><th>Compliance Type</th><th>Status</th><th>Severity</th><th>Identified Date</th><th>Resolution Due</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===================== FLOATING CHAT LAUNCHER ===================== -->
+<button class="chat-launcher" id="chatLauncher" aria-label="Open Agentforce chat">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <path d="M4 5H20V16H8L4 20V5Z" stroke="#111827" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="9" cy="10.5" r="1" fill="#111827"/>
+    <circle cx="12" cy="10.5" r="1" fill="#111827"/>
+    <circle cx="15" cy="10.5" r="1" fill="#111827"/>
+  </svg>
+</button>
+
+<div class="chat-stub-panel" id="chatStubPanel" hidden>
+  <div class="chat-stub-header">
+    <span>Agentforce Chat — Sunny</span>
+    <button id="chatStubClose" aria-label="Close chat panel">&times;</button>
+  </div>
+  <div class="chat-stub-body">
+    <p>This is where the live Agentforce agent will appear once embedded.</p>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+
+<!-- ============================================================
+     AGENTFORCE EMBED SCRIPT
+     Paste the Agentforce Agent embedded-service bootstrap script
+     here to enable the live chat experience for this demo.
+     ============================================================ -->
+<!-- <script src="REPLACE_WITH_AGENTFORCE_EMBED_SCRIPT_URL"></script> -->
+</body>
+</html>

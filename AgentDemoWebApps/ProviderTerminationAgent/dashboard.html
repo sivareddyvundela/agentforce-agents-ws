@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>healthEdge AI - Provider Termination Agent</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="dashboard-body">
+
+<div class="app-shell">
+
+  <!-- ===================== TOP HEADER ===================== -->
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="header-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L3 6V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V6L12 2Z" fill="url(#gradMarkH)"/>
+        <path d="M9 12L11 14L15.5 9.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="gradMarkH" x1="3" y1="2" x2="21" y2="23" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#DC2626"/>
+            <stop offset="1" stop-color="#F87171"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="header-wordmark">healthEdge <strong>AI</strong></span>
+      <span class="header-divider">|</span>
+      <span class="header-title">Provider Termination Agent</span>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </header>
+
+  <div class="app-body">
+
+    <!-- ===================== SIDEBAR NAV ===================== -->
+    <nav class="app-sidebar" id="appSidebar">
+      <ul class="nav-list" id="navList">
+        <!-- populated by app.js -->
+      </ul>
+    </nav>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <main class="app-main" id="appMain">
+
+      <!-- ---------- Overview ---------- -->
+      <section class="tab-panel" id="panel-overview" data-panel="overview">
+        <h1 class="panel-title">Overview</h1>
+        <p class="panel-lede" id="overviewDescription"></p>
+        <div class="stat-tile-row" id="statTileRow"></div>
+      </section>
+
+      <!-- ---------- Provider Lookup ---------- -->
+      <section class="tab-panel" id="panel-providerLookup" data-panel="providerLookup" hidden>
+        <h1 class="panel-title">Provider Lookup</h1>
+        <p class="panel-lede">Provider resolved from the NPI supplied at the start of the conversation.</p>
+        <div class="profile-card" id="profileCard"></div>
+      </section>
+
+      <!-- ---------- Impacted Members ---------- -->
+      <section class="tab-panel" id="panel-impactedMembers" data-panel="impactedMembers" hidden>
+        <h1 class="panel-title">Impacted Members</h1>
+        <p class="panel-lede">Members whose Account is linked to this provider and would be affected by a termination.</p>
+        <div class="table-wrap">
+          <table class="data-table" id="impactedMembersTable">
+            <thead>
+              <tr><th>Name</th><th>Phone</th><th>Email</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Active Authorizations ---------- -->
+      <section class="tab-panel" id="panel-activeAuthorizations" data-panel="activeAuthorizations" hidden>
+        <h1 class="panel-title">Active Authorizations</h1>
+        <p class="panel-lede">Authorizations tied to this provider that are currently Active.</p>
+        <div class="table-wrap">
+          <table class="data-table" id="activeAuthorizationsTable">
+            <thead>
+              <tr><th>Authorization Number</th><th>Type</th><th>Status</th><th>Start Date</th><th>End Date</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- Termination Requests ---------- -->
+      <section class="tab-panel" id="panel-terminationRequests" data-panel="terminationRequests" hidden>
+        <h1 class="panel-title">Termination Requests</h1>
+        <p class="panel-lede">Provider Termination Request records created after user-confirmed impact review.</p>
+        <div class="table-wrap">
+          <table class="data-table" id="terminationRequestsTable">
+            <thead>
+              <tr><th>Request Number</th><th>Status</th><th>Effective Date</th><th>Reason</th><th>Impacted Members</th><th>Active Authorizations</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===================== FLOATING CHAT LAUNCHER ===================== -->
+<button class="chat-launcher" id="chatLauncher" aria-label="Open Agentforce chat">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <path d="M4 5H20V16H8L4 20V5Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="9" cy="10.5" r="1" fill="white"/>
+    <circle cx="12" cy="10.5" r="1" fill="white"/>
+    <circle cx="15" cy="10.5" r="1" fill="white"/>
+  </svg>
+</button>
+
+<div class="chat-stub-panel" id="chatStubPanel" hidden>
+  <div class="chat-stub-header">
+    <span>Agentforce Chat</span>
+    <button id="chatStubClose" aria-label="Close chat panel">&times;</button>
+  </div>
+  <div class="chat-stub-body">
+    <p>This is where the live Agentforce agent will appear once embedded.</p>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+
+<!-- ============================================================
+     AGENTFORCE EMBED SCRIPT
+     Paste the Agentforce Agent embedded-service bootstrap script
+     here to enable the live chat experience for this demo.
+     ============================================================ -->
+<!-- <script src="REPLACE_WITH_AGENTFORCE_EMBED_SCRIPT_URL"></script> -->
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "required" : [ "providerNPI" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "providerNPI" : {
+      "title" : "providerNPI",
+      "description" : "This is the Healthcare Provider NPI received by the Agent",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

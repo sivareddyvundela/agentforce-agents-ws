@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>An AI assistant for internal healthcare employees that retrieves provider profiles from Salesforce Health Cloud. Users can search providers using Provider Name, NPI, or Tax ID and view provider demographics, credentials, provider networks, network contracts, and recent CRM interactions.</description>
+    <localTopicLinks>
+        <genAiPluginName>Provider_Network_and_Service_Details_16jfj0000026yQ9</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>Provider_Search_and_Profile_16jfj0000026yQ9</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jfj0000026yQ9</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>Provider_Network_and_Service_Details_16jfj0000026yQ9</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles provider service location, network participation, and provider network contract requests. Retrieves service locations, provider network affiliations, compliance issues and provider network contract details for the currently selected provider. Handles provider service location, network participation, and provider network contract requests. Retrieves service locations, provider network affiliations, and provider network contract details for the currently selected provider.</description>
+        <developerName>Provider_Network_and_Service_Details_16jfj0000026yQ9</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI assistant for internal healthcare employees.
+
+Your responsibility is to help Provider Relations Representatives, Contact Center Agents, and Network Operations Specialists retrieve provider information stored in Salesforce CRM.
+
+When a user searches using Provider Name, NPI, or Tax ID:
+1. Identify the provider.
+2. Retrieve Healthcare Provider details.
+3. Retrieve related Credential records.
+4. Retrieve Provider Network records.
+5. Retrieve Provider Network Contract records.
+6. Retrieve Provider Service Location records.
+7. Retrieve recent Cases and Tasks if available.
+8. Summarize the provider profile clearly.
+
+If multiple providers match, ask the user to select one.
+If no provider is found, politely inform the user.
+
+Only use Salesforce CRM data.
+Do not make assumptions or fabricate information.</description>
+            <developerName>instruction0_179fj000002zGYA</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002zGYA</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Get_Active_Provider_Contracts_Multiple_179fj000002zGYA</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Fetch_Provider_service_locations_179fj000002zGYA</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Get_Provider_Network_multiple_179fj000002zGYA</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Get_Provider_Compliance_Issues_179fj000002zGYA</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Fetch_Provider_service_locations_179fj000002zGYA</fullName>
+            <description>This action fetches the provider service locations</description>
+            <developerName>Fetch_Provider_service_locations_179fj000002zGYA</developerName>
+            <invocationTarget>Get_Provider_Service_Locations_Multiple</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Fetch_Provider_service_locations</localDeveloperName>
+            <masterLabel>Fetch Provider service locations</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Get_Provider_Compliance_Issues_179fj000002zGYA</fullName>
+            <description>Retrieves all compliance issue records associated with the currently selected provider and returns the complete compliance issue details for display to the user.</description>
+            <developerName>Get_Provider_Compliance_Issues_179fj000002zGYA</developerName>
+            <invocationTarget>Get_Provider_Compliance_Issue</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>true</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Provider_Compliance_Issues</localDeveloperName>
+            <masterLabel>Get Provider Compliance Issues</masterLabel>
+            <progressIndicatorMessage>Retrieving Compliance Issues</progressIndicatorMessage>
+        </localActions>
+        <localActions>
+            <fullName>Get_Active_Provider_Contracts_Multiple_179fj000002zGYA</fullName>
+            <description>This action fetches the active contract details of the provider</description>
+            <developerName>Get_Active_Provider_Contracts_Multiple_179fj000002zGYA</developerName>
+            <invocationTarget>Get_Active_Provider_Contracts_Multiple</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Active_Provider_Contracts_Multiple</localDeveloperName>
+            <masterLabel>Get Active Provider Contracts Multiple</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Get_Provider_Network_multiple_179fj000002zGYA</fullName>
+            <description>This action fetches the provider&apos;s networks</description>
+            <developerName>Get_Provider_Network_multiple_179fj000002zGYA</developerName>
+            <invocationTarget>Get_Provider_Network_multiple</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Provider_Network_multiple</localDeveloperName>
+            <masterLabel>Get Provider Network multiple</masterLabel>
+        </localActions>
+        <localDeveloperName>Provider_Network_and_Service_Details</localDeveloperName>
+        <masterLabel>Provider Network, Service and Compliance Details</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Provider_Search_and_Profile_16jfj0000026yQ9</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles healthcare provider identification and profile lookup requests. Searches for providers using Provider Name, NPI, or Tax ID, returns the selected provider’s profile information, and establishes the provider context for follow-up requests handled by other subagents.</description>
+        <developerName>Provider_Search_and_Profile_16jfj0000026yQ9</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI assistant for internal healthcare employees.
+
+Your responsibility is to help Provider Relations Representatives, Contact Center Agents, and Network Operations Specialists retrieve provider information stored in Salesforce CRM.
+
+When a user searches using Provider Name, NPI, or Tax ID:
+1. Identify the provider.
+2. Retrieve Healthcare Provider details.
+3. Retrieve related Credential records.
+4. Retrieve Provider Network records.
+5. Retrieve Provider Network Contract records.
+6. Retrieve Provider Service Location records.
+7. Retrieve recent Cases and Tasks if available.
+8. Summarize the provider profile clearly.
+
+If multiple providers match, ask the user to select one.
+If no provider is found, politely inform the user.
+
+Only use Salesforce CRM data.
+Do not make assumptions or fabricate information.</description>
+            <developerName>instruction0_179fj000002zGYB</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002zGYB</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Search_Healthcare_Provider_179fj000002zGYB</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Get_Provider_Credentials_Multiple_179fj000002zGYB</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Fetch_selected_credential_details_179fj000002zGYB</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Fetch_selected_credential_details_179fj000002zGYB</fullName>
+            <description>This action fetches the selected credential details of the provider</description>
+            <developerName>Fetch_selected_credential_details_179fj000002zGYB</developerName>
+            <invocationTarget>Fetch_selected_credential_details</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Fetch_selected_credential_details</localDeveloperName>
+            <masterLabel>Fetch selected credential details</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Search_Healthcare_Provider_179fj000002zGYB</fullName>
+            <description>This action fetches the demographics of the healthcare provider.</description>
+            <developerName>Search_Healthcare_Provider_179fj000002zGYB</developerName>
+            <invocationTarget>Search_Healthcare_Provider</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Search_Healthcare_Provider</localDeveloperName>
+            <masterLabel>Search Healthcare Provider</masterLabel>
+            <progressIndicatorMessage>Fetching the Provider Details....</progressIndicatorMessage>
+        </localActions>
+        <localActions>
+            <fullName>Get_Provider_Credentials_Multiple_179fj000002zGYB</fullName>
+            <description>Retrieves one or more credential records for a healthcare provider and returns either a single credential or a numbered list of credentials for user selection.</description>
+            <developerName>Get_Provider_Credentials_Multiple_179fj000002zGYB</developerName>
+            <invocationTarget>Get_Provider_Credentials_Multiple</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Provider_Credentials_Multiple</localDeveloperName>
+            <masterLabel>Get Provider Credentials Multiple</masterLabel>
+            <progressIndicatorMessage>Fetching the credentials of the provider....</progressIndicatorMessage>
+        </localActions>
+        <localDeveloperName>Provider_Search_and_Profile</localDeveloperName>
+        <masterLabel>Provider Search and Credentials</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>agent_router_16jfj0000026yQ9</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the user and determine the appropriate subagent based on user input</description>
+        <developerName>agent_router_16jfj0000026yQ9</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI assistant for internal healthcare employees.
+
+Your responsibility is to help Provider Relations Representatives, Contact Center Agents, and Network Operations Specialists retrieve provider information stored in Salesforce CRM.
+
+When a user searches using Provider Name, NPI, or Tax ID:
+1. Identify the provider.
+2. Retrieve Healthcare Provider details.
+3. Retrieve related Credential records.
+4. Retrieve Provider Network records.
+5. Retrieve Provider Network Contract records.
+6. Retrieve Provider Service Location records.
+7. Retrieve recent Cases and Tasks if available.
+8. Summarize the provider profile clearly.
+
+If multiple providers match, ask the user to select one.
+If no provider is found, politely inform the user.
+
+Only use Salesforce CRM data.
+Do not make assumptions or fabricate information.
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179fj000002zGY9</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002zGY9</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Provider Search (Service) - Sunny</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

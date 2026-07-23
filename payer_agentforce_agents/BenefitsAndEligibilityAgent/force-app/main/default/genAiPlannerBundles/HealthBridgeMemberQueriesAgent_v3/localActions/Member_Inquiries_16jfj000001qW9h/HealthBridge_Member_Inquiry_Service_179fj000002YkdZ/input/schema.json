@@ -1,0 +1,15 @@
+{
+  "required" : [ "memberId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "memberId" : {
+      "title" : "Member ID",
+      "description" : "Salesforce Account ID returned by the member verification action",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType",
+  "lightning:textIndexed" : true
+}

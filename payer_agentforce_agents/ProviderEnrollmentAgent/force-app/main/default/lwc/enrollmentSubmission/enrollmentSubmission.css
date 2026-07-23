@@ -1,0 +1,58 @@
+:host {
+    display: block;
+    background-color: #f4f6f9;
+}
+ 
+/* Main Container */
+.form-container {
+    padding: 1.5rem;
+}
+ 
+/* Two-column Layout */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+ 
+/* Upload Section */
+.upload-section {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid #d8dde6;
+    border-radius: 12px;
+    background-color: #fafaf9;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+ 
+/* Section Title */
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #032d60;
+    margin-bottom: 1rem;
+}
+ 
+/* Success Message */
+.file-success {
+    margin-top: 0.75rem;
+    color: #2e844a;
+    font-weight: 600;
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+ 
+/* Error Message */
+.file-error {
+    margin-top: 0.75rem;
+    color: #ba0517;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+ 
+/* Responsive Layout */
+@media screen and (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}

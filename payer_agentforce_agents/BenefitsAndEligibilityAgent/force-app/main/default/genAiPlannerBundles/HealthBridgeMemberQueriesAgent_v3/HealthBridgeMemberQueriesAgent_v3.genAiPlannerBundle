@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Member queries agent that handles member queries from Payer-Member Portal</description>
+    <localTopicLinks>
+        <genAiPluginName>Escalation_16jfj000001qW9h</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>Member_Claims_16jfj000001qW9h</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>Member_Inquiries_16jfj000001qW9h</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>Member_Verification_16jfj000001qW9h</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jfj000001qW9h</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>agent_router_16jfj000001qW9h</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome users and determine their service or Queries needs</description>
+        <developerName>agent_router_16jfj000001qW9h</developerName>
+        <genAiPluginInstructions>
+            <description>You are a professional Health Bridge Member Queries Assistant. Be helpful, accurate, and guide users through their journey. Never ask for guest details, number of guests, special requests, or other preferences.
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179fj000002Ykda</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002Ykda</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Member_Verification_16jfj000001qW9h</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Collect 3 inputs (member name, DOB mm-dd-yyyy, phone number) and call Member verification action. Store result in member_verified and take the memberid recieved from the output and put it to the member_id.</description>
+        <developerName>Member_Verification_16jfj000001qW9h</developerName>
+        <genAiPluginInstructions>
+            <description>You are a professional Health Bridge Member Queries Assistant. Be helpful, accurate, and guide users through their journey. Never ask for guest details, number of guests, special requests, or other preferences.</description>
+            <developerName>instruction0_179fj000002Ykdb</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002Ykdb</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>HealthBridge_Member_Verification_179fj000002Ykdb</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>HealthBridge_Member_Verification_179fj000002Ykdb</fullName>
+            <description>Verifies member identity using name, date of birth, and phone number.
+On success, this Apex action returns memberId (the verified member identifier) and a boolean isVerified.</description>
+            <developerName>HealthBridge_Member_Verification_179fj000002Ykdb</developerName>
+            <invocationTarget>MemberVerificationAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>HealthBridge_Member_Verification</localDeveloperName>
+            <masterLabel>HealthBridge Member Verification</masterLabel>
+            <progressIndicatorMessage>Verifying Member......</progressIndicatorMessage>
+            <source>HealthBridge_Member_Verification</source>
+        </localActions>
+        <localDeveloperName>Member_Verification</localDeveloperName>
+        <masterLabel>Member Verification</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Member_Claims_16jfj000001qW9h</fullName>
+        <canEscalate>false</canEscalate>
+        <description>First do the member verification and then Inquiry for the Claims</description>
+        <developerName>Member_Claims_16jfj000001qW9h</developerName>
+        <genAiPluginInstructions>
+            <description>You are a professional Health Bridge Member Queries Assistant. Be helpful, accurate, and guide users through their journey. Never ask for guest details, number of guests, special requests, or other preferences.</description>
+            <developerName>instruction0_179fj000002Ykdc</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002Ykdc</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Healthbridge_Member_Claims_179fj000002Ykdc</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Healthbridge_Member_Claims_179fj000002Ykdc</fullName>
+            <description>Retrieves a member&apos;s claims and explains denial reasons.</description>
+            <developerName>Healthbridge_Member_Claims_179fj000002Ykdc</developerName>
+            <invocationTarget>MemberClaimAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Healthbridge_Member_Claims</localDeveloperName>
+            <masterLabel>Healthbridge Member Claims</masterLabel>
+            <progressIndicatorMessage>Fetching Claims......</progressIndicatorMessage>
+            <source>Healthbridge_Member_Claims</source>
+        </localActions>
+        <localDeveloperName>Member_Claims</localDeveloperName>
+        <masterLabel>Member Claims</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Escalation_16jfj000001qW9h</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles requests from users who want to transfer or escalate their conversation to a live human agent.</description>
+        <developerName>Escalation_16jfj000001qW9h</developerName>
+        <genAiPluginInstructions>
+            <description>You are a professional Health Bridge Member Queries Assistant. Be helpful, accurate, and guide users through their journey. Never ask for guest details, number of guests, special requests, or other preferences.</description>
+            <developerName>instruction0_179fj000002Ykdd</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002Ykdd</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>Escalation</localDeveloperName>
+        <masterLabel>Escalation</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Member_Inquiries_16jfj000001qW9h</fullName>
+        <canEscalate>false</canEscalate>
+        <description>First do the member verification and then Member Inquiry Services</description>
+        <developerName>Member_Inquiries_16jfj000001qW9h</developerName>
+        <genAiPluginInstructions>
+            <description>You are a professional Health Bridge Member Queries Assistant. Be helpful, accurate, and guide users through their journey. Never ask for guest details, number of guests, special requests, or other preferences.</description>
+            <developerName>instruction0_179fj000002YkdZ</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179fj000002YkdZ</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>HealthBridge_Member_Inquiry_Service_179fj000002YkdZ</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>HealthBridge_Member_Inquiry_Service_179fj000002YkdZ</fullName>
+            <description>Returns member benefits, plan coverage, PA requirements, submitted PA status, or a history-based PA turnaround prediction.</description>
+            <developerName>HealthBridge_Member_Inquiry_Service_179fj000002YkdZ</developerName>
+            <invocationTarget>MemberInquiryAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>HealthBridge_Member_Inquiry_Service</localDeveloperName>
+            <masterLabel>HealthBridge Member Inquiry Service</masterLabel>
+            <progressIndicatorMessage>Loading...</progressIndicatorMessage>
+            <source>HealthBridge_Member_Inquiry_Service</source>
+        </localActions>
+        <localDeveloperName>Member_Inquiries</localDeveloperName>
+        <masterLabel>Member Inquiries</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>HealthBridge MemberQueriesAgent</masterLabel>
+    <plannerSurfaces>
+        <adaptiveResponseAllowed>true</adaptiveResponseAllowed>
+        <callRecordingAllowed>false</callRecordingAllowed>
+        <outboundRouteConfigs>
+            <escalationMessage>Understood. One moment while I connect you to the next available service representative.</escalationMessage>
+            <outboundRouteName>Outbound_Flow_for_Voice_Agent</outboundRouteName>
+            <outboundRouteType>OmniChannelFlow</outboundRouteType>
+        </outboundRouteConfigs>
+        <surface>SurfaceAction__Telephony</surface>
+        <surfaceType>Telephony</surfaceType>
+    </plannerSurfaces>
+    <plannerSurfaces>
+        <adaptiveResponseAllowed>true</adaptiveResponseAllowed>
+        <callRecordingAllowed>false</callRecordingAllowed>
+        <outboundRouteConfigs>
+            <escalationMessage>One moment, I&apos;m transferring our conversation to get you more help.</escalationMessage>
+            <outboundRouteName>Route_to_Live_Human_Agent</outboundRouteName>
+            <outboundRouteType>OmniChannelFlow</outboundRouteType>
+        </outboundRouteConfigs>
+        <surface>SurfaceAction__Messaging</surface>
+        <surfaceType>Messaging</surfaceType>
+    </plannerSurfaces>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+    <voiceDefinition>
+        <developerName>voiceConfig_16jfj000001qW9h</developerName>
+        <inboundFillerWordsBool>false</inboundFillerWordsBool>
+        <inboundModel>sfdc_ai__Default_Nova_2_PhoneCall</inboundModel>
+        <label>voiceConfig_16jfj000001qW9h</label>
+        <languageCode>en_US</languageCode>
+        <outboundModel>sfdc_ai__Default_Eleven_Flash_V2_5</outboundModel>
+        <outboundSimilarity>0.75</outboundSimilarity>
+        <outboundSpeedNum>1.0</outboundSpeedNum>
+        <outboundStability>0.65</outboundStability>
+        <outboundVoice>Mark</outboundVoice>
+        <voiceIdentifier>UgBBYS2sOqTuMpoF3BR0</voiceIdentifier>
+    </voiceDefinition>
+</GenAiPlannerBundle>

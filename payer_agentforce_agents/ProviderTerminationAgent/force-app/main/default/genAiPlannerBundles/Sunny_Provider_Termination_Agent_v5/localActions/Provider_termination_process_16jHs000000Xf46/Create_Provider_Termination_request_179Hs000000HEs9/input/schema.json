@@ -1,0 +1,42 @@
+{
+  "required" : [ ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "activeAuthorizationsCount" : {
+      "title" : "activeAuthorizationsCount",
+      "description" : "Total number of active authorizations associated with the provider.",
+      "lightning:type" : "lightning__numberType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "effectiveDate" : {
+      "title" : "effectiveDate",
+      "description" : "The requested effective date for the provider termination.",
+      "lightning:type" : "lightning__dateType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "impactedMembersCount" : {
+      "title" : "impactedMembersCount",
+      "description" : "Total number of impacted members associated with the provider",
+      "lightning:type" : "lightning__numberType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "providerId" : {
+      "title" : "providerId",
+      "description" : "The Salesforce record ID of the provider for whom the termination request is being created.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "reason" : {
+      "title" : "reason",
+      "description" : "The reason for submitting the provider termination request.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

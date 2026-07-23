@@ -1,0 +1,46 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "PromptResponse2" : {
+      "title" : "PromptResponse2",
+      "description" : "JSON output from the second prompt template. Contains the following keys: reasoning (internal only), explanation, and recommendedAction. Only use the explanation and recommendedAction values from this JSON when responding to the user. Never expose the reasoning key or the raw JSON structure to the user.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "providerFound" : {
+      "title" : "providerFound",
+      "description" : "Verifies Provider is found or not",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "varConfidenceScore" : {
+      "title" : "varConfidenceScore",
+      "description" : "The confidence score (0–100) from the classification step, indicating how certain the model is about the identified issue type. Used to decide whether to present a recommendation, ask for more details, or\nescalate to a human agent.",
+      "lightning:type" : "lightning__numberType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "varIssueType" : {
+      "title" : "varIssueType",
+      "description" : "The classified category of the provider's issue (e.g., credentialing delay, claim denial, payment discrepancy). Used internally to confirm classification; not to be shared with the user unless relevant to the explanation.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "varSummary" : {
+      "title" : "varSummary",
+      "description" : "The classified category of the provider's issue (e.g., credentialing delay, claim denial, payment discrepancy). Used internally to confirm classification; not to be shared with the user unless relevant to the explanation.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

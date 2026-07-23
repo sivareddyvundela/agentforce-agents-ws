@@ -1,0 +1,14 @@
+{
+  "required" : [ "providerId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "providerId" : {
+      "title" : "providerId",
+      "description" : "This receives the currently selected Provider Account Id from Agentforce",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

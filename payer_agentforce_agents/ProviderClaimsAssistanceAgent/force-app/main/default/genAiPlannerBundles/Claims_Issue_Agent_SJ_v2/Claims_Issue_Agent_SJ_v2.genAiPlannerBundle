@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Deliver personalized customer interactions with an autonomous AI agent. Agentforce Service Agent intelligently supports your customers with common inquiries and escalates complex issues.</description>
+    <localTopicLinks>
+        <genAiPluginName>Enquiry_Agent_16jHs000000Xf0s</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jHs000000Xf0s</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>Enquiry_Agent_16jHs000000Xf0s</fullName>
+        <canEscalate>false</canEscalate>
+        <description>This agent is designed to help end users enquire about the use case</description>
+        <developerName>Enquiry_Agent_16jHs000000Xf0s</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.</description>
+            <developerName>instruction0_179Hs000000HEns</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179Hs000000HEns</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Claim_Information_179Hs000000HEns</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Claim_Information_179Hs000000HEns</fullName>
+            <description>This action calls the flow and gives claim information to the end user.</description>
+            <developerName>Claim_Information_179Hs000000HEns</developerName>
+            <invocationTarget>Claim_Assistance_SJ</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Claim_Information</localDeveloperName>
+            <masterLabel>Claim Information</masterLabel>
+            <progressIndicatorMessage>Retrieving Details</progressIndicatorMessage>
+        </localActions>
+        <localDeveloperName>Enquiry_Agent</localDeveloperName>
+        <masterLabel>Enquiry Agent</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>agent_router_16jHs000000Xf0s</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the user and determine the appropriate subagent based on user input</description>
+        <developerName>agent_router_16jHs000000Xf0s</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179Hs000000HEnr</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179Hs000000HEnr</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Claims Issue Agent</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

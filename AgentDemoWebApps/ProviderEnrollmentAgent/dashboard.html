@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>healthEdge AI - Provider Enrollment</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="dashboard-body">
+
+  <header class="app-header">
+    <div class="app-header-left">
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="app-wordmark">healthEdge <span class="brand-accent">AI</span></div>
+      <span class="app-header-divider" aria-hidden="true">|</span>
+      <h1 class="app-title">Provider Enrollment</h1>
+    </div>
+    <button class="btn-signout" id="signOutBtn">Sign Out</button>
+  </header>
+
+  <div class="app-shell">
+
+    <nav class="app-sidebar" id="appSidebar">
+      <ul class="nav-list" id="navList">
+        <!-- nav items rendered by app.js from data.js -->
+      </ul>
+    </nav>
+
+    <main class="app-main">
+
+      <!-- OVERVIEW TAB -->
+      <section class="tab-panel" id="tab-overview" data-tab-panel>
+        <h2 class="section-title">Overview</h2>
+        <p class="section-subtitle">
+          The Provider Enrollment Agent guides new providers through a single conversational
+          intake: it collects contact details, NPI and license numbers, specialty and network,
+          and a supporting credential document, then creates an Enrollment record and confirms
+          submission — no phone calls, no paper packets, no manual data entry.
+        </p>
+
+        <div class="stat-grid" id="statGrid">
+          <!-- stat tiles rendered by app.js from data.js -->
+        </div>
+
+        <div class="card overview-callout">
+          <h3 class="card-title">What this agent automates</h3>
+          <ul class="callout-list">
+            <li>Presents a guided enrollment form immediately, with no chit-chat, when a new conversation starts.</li>
+            <li>Captures First Name, Last Name, Phone, Email, NPI Number, License Number, Specialty, and Network.</li>
+            <li>Accepts a supporting credential document upload (PDF, PNG, or JPEG up to ~4.5MB).</li>
+            <li>Creates an <code>Enrollment__c</code> record and returns a trackable application id.</li>
+            <li>Confirms submission back to the applicant in the same conversation.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- NEW ENROLLMENT TAB -->
+      <section class="tab-panel" id="tab-new-enrollment" data-tab-panel hidden>
+        <h2 class="section-title">New Enrollment</h2>
+        <p class="section-subtitle">
+          This form mirrors the fields the Provider Enrollment Agent collects during a live
+          conversation. Submissions here are demo-only and are added to the Enrollment Queue
+          in memory.
+        </p>
+
+        <form class="card enrollment-form" id="enrollmentForm" novalidate>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="field-label" for="firstName">First Name</label>
+              <input class="field-input" type="text" id="firstName" name="firstName" required>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="lastName">Last Name</label>
+              <input class="field-input" type="text" id="lastName" name="lastName" required>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="phone">Phone</label>
+              <input class="field-input" type="tel" id="phone" name="phone" placeholder="(555) 555-0100" required>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="email">Email</label>
+              <input class="field-input" type="email" id="email" name="email" placeholder="name@example.com" required>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="npiNumber">NPI Number</label>
+              <input class="field-input" type="text" id="npiNumber" name="npiNumber" placeholder="10-digit NPI" pattern="[0-9]{10}" maxlength="10" required>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="licenseNumber">License Number</label>
+              <input class="field-input" type="text" id="licenseNumber" name="licenseNumber" placeholder="e.g. MD-48213-CA" required>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="specialty">Specialty</label>
+              <select class="field-input" id="specialty" name="specialty" required>
+                <option value="" disabled selected>Select a specialty&hellip;</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Family Medicine">Family Medicine</option>
+                <option value="Internal Medicine">Internal Medicine</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Orthopedics">Orthopedics</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Psychiatry">Psychiatry</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="network">Network</label>
+              <select class="field-input" id="network" name="network" required>
+                <option value="" disabled selected>Select a network&hellip;</option>
+                <option value="PPO Statewide">PPO Statewide</option>
+                <option value="HMO Regional">HMO Regional</option>
+                <option value="EPO Metro">EPO Metro</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="planLevel">Plan Level</label>
+              <select class="field-input" id="planLevel" name="planLevel" required>
+                <option value="" disabled selected>Select a plan level&hellip;</option>
+                <option value="Bronze">Bronze</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+              </select>
+            </div>
+
+            <div class="form-field form-field-full">
+              <label class="field-label" for="supportingDocument">Supporting Document</label>
+              <label class="file-upload" for="supportingDocument" id="fileUploadLabel">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  <path d="M7.5 8.5 12 4l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M4 16v2.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                <span class="file-upload-text" id="fileUploadText">Click to upload PDF, PNG, or JPEG (up to ~4.5MB)</span>
+                <input type="file" id="supportingDocument" name="supportingDocument" accept=".pdf,.png,.jpg,.jpeg" hidden>
+              </label>
+            </div>
+          </div>
+
+          <p id="enrollmentFormError" class="form-error" hidden>Please complete all required fields before submitting.</p>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary btn-submit-enrollment">Submit Enrollment</button>
+          </div>
+        </form>
+
+        <div class="toast" id="successToast" hidden>
+          <span class="toast-icon" aria-hidden="true">&#10003;</span>
+          <span id="successToastText">Enrollment submitted successfully.</span>
+        </div>
+      </section>
+
+      <!-- ENROLLMENT QUEUE TAB -->
+      <section class="tab-panel" id="tab-enrollment-queue" data-tab-panel hidden>
+        <h2 class="section-title">Enrollment Queue</h2>
+        <p class="section-subtitle">All provider enrollment applications currently in the pipeline.</p>
+
+        <div class="table-wrap card">
+          <table class="data-table" id="enrollmentTable">
+            <thead>
+              <tr>
+                <th>Enrollment Id</th>
+                <th>Applicant Name</th>
+                <th>NPI Number</th>
+                <th>License Number</th>
+                <th>Specialty</th>
+                <th>Network</th>
+                <th>Plan Level</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="enrollmentTableBody">
+              <!-- rows rendered by app.js from data.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- DOCUMENT UPLOADS TAB -->
+      <section class="tab-panel" id="tab-document-uploads" data-tab-panel hidden>
+        <h2 class="section-title">Document Uploads</h2>
+        <p class="section-subtitle">Supporting credential documents submitted alongside enrollment applications.</p>
+
+        <div class="table-wrap card">
+          <table class="data-table" id="documentTable">
+            <thead>
+              <tr>
+                <th>Document Name</th>
+                <th>Type</th>
+                <th>Linked Enrollment Id</th>
+                <th>Uploaded Date</th>
+              </tr>
+            </thead>
+            <tbody id="documentTableBody">
+              <!-- rows rendered by app.js from data.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SPECIALTIES DIRECTORY TAB -->
+      <section class="tab-panel" id="tab-specialties-directory" data-tab-panel hidden>
+        <h2 class="section-title">Specialties Directory</h2>
+        <p class="section-subtitle">Specialties supported for provider enrollment, with a brief description of each.</p>
+
+        <div class="specialty-grid" id="specialtyGrid">
+          <!-- cards rendered by app.js from data.js -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Floating chat launcher -->
+  <button class="chat-launcher" id="chatLauncher" aria-label="Open Agentforce chat">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8A2.5 2.5 0 0 1 17.5 16H9l-4.5 4V16A2.5 2.5 0 0 1 4 13.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <div class="chat-stub-panel" id="chatStubPanel" hidden>
+    <div class="chat-stub-header">
+      <span>Provider Enrollment Agent</span>
+      <button class="chat-stub-close" id="chatStubClose" aria-label="Close chat panel">&times;</button>
+    </div>
+    <div class="chat-stub-body">
+      This is where the live Agentforce agent will appear once embedded.
+    </div>
+  </div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+
+  <!-- ============================================================
+       AGENTFORCE EMBED SCRIPT
+       Paste the Agentforce Agent embedded-service bootstrap script
+       here to enable the live chat experience for this demo.
+       ============================================================ -->
+  <!-- <script src="REPLACE_WITH_AGENTFORCE_EMBED_SCRIPT_URL"></script> -->
+</body>
+</html>

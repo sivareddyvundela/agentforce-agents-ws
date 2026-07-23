@@ -1,0 +1,14 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "locationSummary" : {
+      "title" : "locationSummary",
+      "description" : "Contains the service locations found for the selected provider, including location name, address, city, and country. It may contain one or multiple locations. If no locations are found, it returns a no-locations message.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

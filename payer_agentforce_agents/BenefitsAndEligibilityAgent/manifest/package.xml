@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+ <types>
+  <members>HealthBridgeMemberQueriesAgent_3</members>
+  <name>AiAuthoringBundle</name>
+ </types>
+ <types>
+  <members>MemberClaimAction</members>
+  <members>MemberInquiryAction</members>
+  <members>MemberVerificationAction</members>
+  <name>ApexClass</name>
+ </types>
+ <types>
+  <members>HealthBridgeMemberQueriesAgent</members>
+  <name>Bot</name>
+ </types>
+ <types>
+  <members>HealthBridge_Member_Inquiry_Service</members>
+  <members>HealthBridge_Member_Verification</members>
+  <members>Healthbridge_Member_Claims</members>
+  <name>GenAiFunction</name>
+ </types>
+ <types>
+		<members>Outbound_Flow_for_Voice_Agent</members>
+		<name>Flow</name>
+	</types>
+ <types>
+  <members>HealthBridgeMemberQueriesAgent_v3</members>
+  <name>GenAiPlannerBundle</name>
+ </types>
+ <types>
+        <members>Claim.Claim_External_ID__c</members>
+        <members>Claim.Date_Submitted__c</members>
+        <members>Claim.Denial_Reason__c</members>
+        <members>Claim.Member_Responsibility__c</members>
+        <members>Claim.Provider_Name__c</members>
+        <members>Claim.Service_Type__c</members>
+        <members>Claim.CPT_Codes__c</members>
+        <members>Claim.CPT_Descriptions__c</members>
+        <members>Claim.Diagnosis_Codes__c</members>
+        <members>Claim.ERA_Number__c</members>
+  <name>CustomField</name>
+    </types>
+ <version>67.0</version>
+</Package>
+ 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Coverage_Change_Type__c</fullName>
+    <label>Coverage Change Type</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Add Dependent</fullName>
+                <default>false</default>
+                <label>Add Dependent</label>
+            </value>
+            <value>
+                <fullName>Remove Dependent</fullName>
+                <default>false</default>
+                <label>Remove Dependent</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

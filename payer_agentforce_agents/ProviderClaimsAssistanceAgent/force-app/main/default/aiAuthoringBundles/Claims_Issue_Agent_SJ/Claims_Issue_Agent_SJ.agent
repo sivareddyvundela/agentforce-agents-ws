@@ -1,0 +1,180 @@
+system:
+    instructions: "You are an AI Agent."
+    messages:
+        welcome: |
+            Hi, I'm an AI service assistant. How can I help you?
+        error: "Sorry, it looks like something has gone wrong."
+
+config:
+    agent_label: "Claims Issue Agent"
+    agent_template: "SvcCopilotTmpl__AgentforceServiceAgent"
+    developer_name: "Claims_Issue_Agent_SJ"
+    description: "Deliver personalized customer interactions with an autonomous AI agent. Agentforce Service Agent intelligently supports your customers with common inquiries and escalates complex issues."
+
+access:
+    default_agent_user: "provider_network_inquiries_agent@00dhs00000ttgxg1772157319.ext"
+    verified_customer_record_access:
+        use_default_objects: True
+
+variables:
+    authenticationKey: mutable string
+        description: "Stores the authentication key that's used to generate the verification code."
+        visibility: "Internal"
+    customerId: mutable string
+        description: "Stores the Salesforce user ID or contact ID."
+        visibility: "Internal"
+    customerType: mutable string
+        description: "Stores the customer ID type, whether it's a Salesforce user or a contact."
+        visibility: "Internal"
+    isVerified: mutable boolean = False
+        label: "isVerified"
+        description: "Stores a boolean value that indicates whether the customer code is verified."
+        visibility: "Internal"
+    EndUserId: linked string
+        source: @MessagingSession.MessagingEndUserId
+        description: "This variable may also be referred to as MessagingEndUser Id"
+    RoutableId: linked string
+        source: @MessagingSession.Id
+        description: "This variable may also be referred to as MessagingSession Id"
+    ContactId: linked string
+        source: @MessagingEndUser.ContactId
+        description: "This variable may also be referred to as MessagingEndUser ContactId"
+    EndUserLanguage: linked string
+        source: @MessagingSession.EndUserLanguage
+        description: "This variable may also be referred to as MessagingSession EndUserLanguage"
+    ChannelType: linked string
+        source: @MessagingSession.ChannelType
+        description: "This variable may also be referred to as MessagingSession ChannelType"
+    VerifiedCustomerId: mutable string
+        description: "This variable may also be referred to as VerifiedCustomerId"
+        visibility: "Internal"
+    emailCaseId: mutable string
+        description: "Stores the Salesforce Case ID created by an inbound email."
+        visibility: "External"
+    endUserEmail: mutable string
+        description: "Stores email address of the end user who sent the inbound email."
+        visibility: "External"
+    endUserContactId: mutable string
+        description: "Stores the Salesforce Contact ID associated with the end user who sent the inbound email."
+        visibility: "External"
+
+language:
+    additional_locales: "en_GB"
+    default_locale: "en_US"
+    all_additional_locales: False
+
+knowledge:
+    rag_feature_config_id: ""
+    citations_url: ""
+    citations_enabled: False
+
+start_agent agent_router:
+    label: "Agent Router"
+    description: "Welcome the user and determine the appropriate subagent based on user input"
+    model_config:
+        model: "model://sfdc_ai__DefaultEinsteinHyperClassifier"
+    reasoning:
+        instructions: ->
+            | Select the best tool to call based on conversation history and user's intent.
+        actions:
+            go_to_Enquiry_Agent: @utils.transition to @subagent.Enquiry_Agent
+
+subagent Enquiry_Agent:
+    label: "Enquiry Agent"
+    description: |
+
+        This agent is designed to help end users enquire about the use case
+    reasoning:
+        instructions: ->
+            |1. Ask the user for the Claim Number if it is not already provided.
+             2. Search the Provider Claim record using the supplied Claim Number.
+             3. If a matching claim record is found, retrieve and display the following details:
+                - Healthcare Provider
+                - Claim Type
+                - Status
+                - Initiation Date
+                - Estimated Amount
+                - Actual Amount
+                - Approved Amount
+                - Claim Denial Reason
+                - Finalized Date
+             4. Present the information in a clear and user-friendly format.
+             5. After displaying the details, show the message:
+                "The above are your claim details."
+             6. If no matching claim is found, respond:
+                "No claim was found for the provided claim number. Please verify the claim number and try again."
+             7. Do not modify any claim information. Only retrieve and display the claim details.
+        actions:
+            Claim_Information: @actions.Claim_Information
+                with ClaimId = ...
+
+    actions:
+        Claim_Information:
+            label: "Claim Information"
+            description: "This action calls the flow and gives claim information to the end user."
+            target: "flow://Claim_Assistance_SJ"
+            inputs:
+                ClaimId: string
+                    label: "ClaimId"
+                    description: "Input from the agent."
+                    is_required: True
+            outputs:
+                ActualAmount: object
+                    label: "ActualAmount"
+                    description: "From the record"
+                    complex_data_type_name: "lightning__currencyType"
+                    is_displayable: True
+                    filter_from_agent: False
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                ApprovedAmount: object
+                    label: "ApprovedAmount"
+                    description: "From the record"
+                    complex_data_type_name: "lightning__currencyType"
+                    is_displayable: True
+                    filter_from_agent: False
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                ClaimDenialReason: string
+                    label: "ClaimDenialReason"
+                    description: "From the record"
+                    is_displayable: True
+                    filter_from_agent: False
+                ClaimType: string
+                    label: "ClaimType"
+                    description: "From the record"
+                    is_displayable: True
+                    filter_from_agent: False
+                ConfirmationMessage: string
+                    label: "ConfirmationMessage"
+                    description: "Show in conversation"
+                    is_displayable: True
+                    filter_from_agent: False
+                EstimatedAmount: object
+                    label: "EstimatedAmount"
+                    description: "From the record"
+                    complex_data_type_name: "lightning__currencyType"
+                    is_displayable: True
+                    filter_from_agent: False
+                FinalisedDate: object
+                    label: "FinalisedDate"
+                    description: "From the record"
+                    complex_data_type_name: "lightning__dateTimeStringType"
+                    is_displayable: True
+                    filter_from_agent: False
+                HealthacreProvider: string
+                    label: "HealthacreProvider"
+                    description: "From the record"
+                    is_displayable: True
+                    filter_from_agent: False
+                InitiationDate: object
+                    label: "InitiationDate"
+                    description: "From the record"
+                    complex_data_type_name: "lightning__dateTimeStringType"
+                    is_displayable: True
+                    filter_from_agent: False
+                Status: string
+                    label: "Status"
+                    description: "From the record"
+                    is_displayable: True
+                    filter_from_agent: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Retrieving Details "

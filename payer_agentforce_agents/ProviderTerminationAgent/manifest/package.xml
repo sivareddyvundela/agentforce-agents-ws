@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+	<types>
+		<members>Sunny_Provider_Termination_Agent</members>
+		<name>AiAuthoringBundle</name>
+	</types>
+	<types>
+		<members>Sunny_Provider_Termination_Agent</members>
+		<name>Bot</name>
+	</types>
+	<types>
+		<members>Authorization__c</members>
+		<members>Provider_Termination_Request__c</members>
+		<name>CustomObject</name>
+	</types>
+	<types>
+    <members>Account.Healthcare_Provider__c</members>
+    <name>CustomField</name>
+    </types>
+	<types>
+		<members>Authorization__c</members>
+		<members>Provider_Termination_Request__c</members>
+		<name>CustomTab</name>
+	</types>
+	<types>
+		<members>Create_Provider_Termination_Request</members>
+		<members>Get_Active_Authorizations</members>
+		<members>Get_Impacted_Members</members>
+		<members>Get_Provider_by_NPI</members>
+		<name>Flow</name>
+	</types>
+	<types>
+		<members>Sunny_Provider_Termination_Agent_v5</members>
+		<name>GenAiPlannerBundle</name>
+	</types>
+	<types>
+		<members>Authorization__c-Authorization Layout</members>
+		<members>Provider_Termination_Request__c-Provider Termination Request Layout</members>
+		<name>Layout</name>
+	</types>
+	<types>
+		<members>Recent_Provider_Termination_Permissions</members>
+		<name>PermissionSet</name>
+	</types>
+	<version>67.0</version>
+</Package>

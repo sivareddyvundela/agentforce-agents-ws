@@ -1,0 +1,14 @@
+{
+  "required" : [ "memberId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "memberId" : {
+      "title" : "Member Id",
+      "description" : "The Member Id of the member whose claims should be retrieved",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

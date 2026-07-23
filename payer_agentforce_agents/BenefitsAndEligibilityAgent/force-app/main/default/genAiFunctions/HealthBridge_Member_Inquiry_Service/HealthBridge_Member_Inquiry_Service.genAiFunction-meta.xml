@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Returns member benefits, plan coverage, PA requirements, submitted PA status, or a history-based PA turnaround prediction.</description>
+    <developerName>HealthBridge_Member_Inquiry_Service</developerName>
+    <invocationTarget>MemberInquiryAction</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>HealthBridge_Member_Inquiry_Service</localDeveloperName>
+    <masterLabel>HealthBridge Member Inquiry Service</masterLabel>
+    <progressIndicatorMessage>Loading...</progressIndicatorMessage>
+</GenAiFunction>

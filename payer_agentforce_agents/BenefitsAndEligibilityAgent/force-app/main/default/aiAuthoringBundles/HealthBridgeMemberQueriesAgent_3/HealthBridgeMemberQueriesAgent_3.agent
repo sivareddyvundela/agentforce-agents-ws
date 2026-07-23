@@ -1,0 +1,265 @@
+system:
+   messages:
+      welcome: "Welcome to our Health Bridge Member Queries Assistant! I can help you with Benefit Enrollment, Benefits Plan, Benefit Account, Plan Documents, and Service Requests."
+      error: "I encountered an issue. Let me help you from here."
+
+   instructions: "You are a professional Health Bridge Member Queries Assistant. Be helpful, accurate, and guide users through their journey. Never ask for guest details, number of guests, special requests, or other preferences."
+
+# Member agent helps in member queries from Payer-Member Portal, this agent should be invoked only when there is a user query from Payer-Member Portal
+
+config:
+   developer_name: "HealthBridgeMemberQueriesAgent"
+   agent_label: "HealthBridge MemberQueriesAgent"
+   default_agent_user: "payer_contact_center_agent@00dfj00000q85ss699465383.ext"
+   description: "Member queries agent that handles member queries from Payer-Member Portal"
+
+variables:
+    member_verified: mutable boolean = False
+        description: "Tracking Verified Member Flag Here"
+        label: "member_verified"
+    member_id: mutable string = ""
+        description: "Member ID"
+        label: "member_id"
+    VoiceCallId: linked string
+        description: "This variable may also be referred to as Voice Call Id"
+        source: @VoiceCall.Id
+
+start_agent agent_router:
+    description: "Welcome users and determine their service or Queries needs"
+    model_config:
+        model: "model://sfdc_ai__DefaultEinsteinHyperClassifier"
+    reasoning:
+        instructions: ->
+            |Select the best transition based on the user's intent and conversation history.
+        actions:
+            go_to_Member_Verification: @utils.transition to @subagent.Member_Verification
+            go_to_Member_Claims: @utils.transition to @subagent.Member_Claims
+            go_to_Member_Inquiries: @utils.transition to @subagent.Member_Inquiries
+            go_to_Escalation: @utils.transition to @subagent.Escalation
+        #actions:
+        #   member_verification: @utils.transition to @subagent.member_verification
+        #      description: "Member Verification"
+
+subagent Member_Verification:
+    label: "Member Verification"
+    description: |Collect 3 inputs (member name, DOB mm-dd-yyyy, phone number) and call Member verification action. Store result in member_verified and take the memberid recieved from the output and put it to the member_id.
+    reasoning:
+        instructions: ->
+            |Ask for the three required inputs : Date of Birth , Member Name and Phone Number
+            |After recieving all the three inputs from the user do the member verification
+            |store result in member_verified and take the memberid recieved from the output and put it to the member_id
+            |Ask for Claim Inquiries or Benefit Inquiries and check the conversation what they have started with the claims or benefits and transition to that specific Subagent.
+        actions:
+            HealthBridge_Member_Verification: @actions.HealthBridge_Member_Verification
+                with dateOfBirth = ...
+                with memberName = ...
+                with phoneNumber = ...
+                set @variables.member_verified = @outputs.isVerified
+                set @variables.member_id = @outputs.memberId
+
+
+
+
+
+    actions:
+        HealthBridge_Member_Verification:
+            description: |Verifies member identity using name, date of birth, and phone number.
+                On success, this Apex action returns memberId (the verified member identifier) and a boolean isVerified.
+            label: "HealthBridge Member Verification"
+            require_user_confirmation: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Verifying Member......"
+            source: "HealthBridge_Member_Verification"
+            target: "apex://MemberVerificationAction"
+            inputs:
+                dateOfBirth: date
+                    label: "Date of Birth"
+                    description: "Member date of birth (YYYY-MM-DD)"
+                    is_required: True
+                    is_user_input: False
+                    complex_data_type_name: "lightning__dateType"
+                memberName: string
+                    label: "Member Name"
+                    description: "Full name of the member to verify"
+                    is_required: True
+                    is_user_input: False
+                phoneNumber: string
+                    label: "Phone Number"
+                    description: "phone number"
+                    is_required: True
+                    is_user_input: False
+            outputs:
+                errorType: string
+                    label: "Error Type"
+                    description: "Type of error if verification failed"
+                    is_displayable: False
+                    filter_from_agent: False
+                isVerified: boolean
+                    label: "Is Verified"
+                    description: "True if member was successfully verified"
+                    is_displayable: False 
+                    filter_from_agent: False
+                memberId: string
+                    label: "Member ID"
+                    description: "Salesforce ID of the verified member account"
+                    is_displayable: False
+                    filter_from_agent: False
+                memberName: string
+                    label: "Member Name"
+                    description: "Confirmed name of the verified member"
+                    is_displayable: False
+                    filter_from_agent: False
+                message: string
+                    label: "Message"
+                    description: "Success or error message describing the verification result"
+                    is_displayable: False
+                    filter_from_agent: False
+
+subagent Member_Claims:
+    label: "Member Claims "
+    description: |First do the member verification and then Inquiry for the Claims
+    reasoning:
+        instructions: ->
+            if @variables.member_verified == True:
+                run @actions.Healthbridge_Member_Claims
+                    with memberId = @variables.member_id
+                |Here are your recent claims:
+                |- Format the claims below as a clean bulleted list with exactly these fields per claim:
+                |  - ID, Name, Status, Service_Type__c, ApprovedAmount.
+                |  - Sort by most recent using ClaimLossDate descending if present, else CreatedDate descending.
+                |  - Show at most 5 claims.
+                |    - Do not include any raw objects, JSON, or debug blobs.
+                |    - Render each claim exactly as:
+                |    - "- ID: {Id} | Name: {Name}\n  - Status: {Status}\n  - Service: {Service_Type__c or 'N/A'}\n  - Approved: ${ApprovedAmount with two decimals (e.g., $180.00)}"
+                |    - Handle nulls gracefully: if Service_Type__c or ApprovedAmount are null, use 'N/A' and '$0.00' respectively.
+            else:
+                transition to @subagent.Member_Verification
+        actions:
+            Healthbridge_Member_Claims: @actions.Healthbridge_Member_Claims
+                with memberId = @variables.member_id
+
+
+
+    actions:
+        Healthbridge_Member_Claims:
+            description: "Retrieves a member's claims and explains denial reasons."
+            label: "Healthbridge Member Claims"
+            require_user_confirmation: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Fetching Claims......"
+            source: "Healthbridge_Member_Claims"
+            target: "apex://MemberClaimAction"
+            inputs:
+                memberId: string
+                    label: "Member Id"
+                    description: "The Member Id of the member whose claims should be retrieved"
+                    is_required: True
+                    is_user_input: False
+            outputs:
+                claimSummary: string
+                    label: "Claim Summary"
+                    description: "Claim Information"
+                    is_displayable: True
+                    filter_from_agent: True
+                memberId: string
+                    label: "Member Id"
+                    description: "member Id"
+                    is_displayable: False
+                    filter_from_agent: False
+                message: string
+                    label: "Return Message"
+                    description: "Gets the message that memberid is invalid or Retrieved Successfully or any errors"
+                    is_displayable: True
+                    filter_from_agent: False
+                success: boolean
+                    label: "Success"
+                    description: "sets true when retrieved successfully"
+                    is_displayable: False
+                    filter_from_agent: False
+
+subagent Member_Inquiries:
+    label: "Member Inquiries"
+    description: "First do the member verification and then Member Inquiry Services"
+    reasoning:
+        instructions: ->
+            if @variables.member_verified == True:
+                |Respond for the Member Inquiry Services and Benefit Plans
+            else:
+                transition to @subagent.Member_Verification
+        actions:
+            HealthBridge_Member_Inquiry_Service: @actions.HealthBridge_Member_Inquiry_Service
+                with memberId = @variables.member_id
+
+
+    actions:
+        HealthBridge_Member_Inquiry_Service:
+            description: "Returns member benefits, plan coverage, PA requirements, submitted PA status, or a history-based PA turnaround prediction."
+            label: "HealthBridge Member Inquiry Service"
+            require_user_confirmation: False
+            include_in_progress_indicator: True
+            progress_indicator_message: "Loading..."
+            source: "HealthBridge_Member_Inquiry_Service"
+            target: "apex://MemberInquiryAction"
+            inputs:
+                memberId: string
+                    label: "Member ID"
+                    description: "Salesforce Account ID returned by the member verification action"
+                    is_required: True
+                    is_user_input: False
+            outputs:
+                inquirySummary: string
+                    label: "Inquiry Summary"
+                    description: "Inquiry Information"
+                    is_displayable: True
+                    filter_from_agent: True
+                memberId: string
+                    label: "Member ID"
+                    description: "Member Id"
+                    is_displayable: False
+                    filter_from_agent: False
+                message: string
+                    label: "Message"
+                    description: "Shows error if memberid is failure and throws any error or  success message if retreived succesfully"
+                    is_displayable: False
+                    filter_from_agent: False
+                success: boolean
+                    label: "Success"
+                    description: "Sets true if it retrieve successfully"
+                    is_displayable: False
+                    filter_from_agent: False
+
+connection messaging:
+    outbound_route_type: "OmniChannelFlow"
+    outbound_route_name: "flow://Route_to_Live_Human_Agent"
+    escalation_message: "One moment, I'm transferring our conversation to get you more help."
+    adaptive_response_allowed: True
+
+subagent Escalation:
+    label: "Escalation"
+    description: "Handles requests from users who want to transfer or escalate their conversation to a live human agent."
+    reasoning:
+        instructions: ->
+            |If a user explicitly asks to transfer to a live agent, escalate the conversation.
+             If escalation to a live agent fails for any reason, acknowledge the issue and ask the user whether they would like to log a support case instead.
+            | If user says ANY of the following:
+            | - talk to human
+            | - live agent
+            | - customer support
+            | - escalation
+            | - not satisfied / not helping
+            | Trigger escalation immediately using {!@actions.escalate_to_agent}
+        # No reasoning actions in this subagent
+        actions:
+            escalate_to_agent: @utils.escalate
+
+modality voice:
+    voice_id: "UgBBYS2sOqTuMpoF3BR0"
+    outbound_speed: 1.0
+    outbound_stability: 0.65
+    outbound_similarity: 0.75
+
+connection telephony:
+    adaptive_response_allowed: True
+    outbound_route_name: "flow://Outbound_Flow_for_Voice_Agent"
+    outbound_route_type: "OmniChannelFlow"
+    escalation_message: "Understood. One moment while I connect you to the next available service representative."

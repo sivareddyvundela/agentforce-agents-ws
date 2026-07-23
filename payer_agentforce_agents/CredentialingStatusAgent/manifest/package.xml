@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+	<types>
+		<members>Credentialing_Agent_1</members>
+		<name>AiAuthoringBundle</name>
+	</types>
+	<types>
+		<members>Credentialing_Agent</members>
+		<name>Bot</name>
+	</types>
+	<types>
+		<members>Credential__c</members>
+		<members>Credentialing_Document__c</members>
+		<name>CustomTab</name>
+	</types>
+
+	<types>
+        <members>Credential__c-Credential Layout</members>
+        <members>Credentialing_Document__c-Credentialing Document Layout</members>
+        <name>Layout</name>
+    </types>
+
+
+
+	<types>
+		<members>Get_Credential_Status</members>
+		<members>Get_Credentialing_Summary</members>
+		<members>Identify_Missing_Documents</members>
+		<name>Flow</name>
+	</types>
+	<version>67.0</version>
+</Package>

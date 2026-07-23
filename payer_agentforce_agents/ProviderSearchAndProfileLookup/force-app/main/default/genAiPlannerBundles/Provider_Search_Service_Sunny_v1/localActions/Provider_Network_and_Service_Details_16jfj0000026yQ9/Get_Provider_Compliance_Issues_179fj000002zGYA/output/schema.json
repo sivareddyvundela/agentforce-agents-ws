@@ -1,0 +1,14 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "complianceSummary" : {
+      "title" : "complianceSummary",
+      "description" : "Contains the complete compliance issue details returned for the selected provider. Use this output to formulate the response and display all compliance issue records and their details without omitting any returned records.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

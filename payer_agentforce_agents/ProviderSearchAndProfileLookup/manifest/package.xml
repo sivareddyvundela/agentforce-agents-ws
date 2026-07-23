@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+	<types>
+		<members>Provider_Search_Service_Sunny_1</members>
+		<name>AiAuthoringBundle</name>
+	</types>
+	<types>
+		<members>Provider_Search_Service_Sunny</members>
+		<name>Bot</name>
+	</types>
+	<types>
+		<members>HealthcareProvider.Is_Accepting_New_Patients__c</members>
+		<members>ProviderNetworkContract.Status__c</members>
+		<members>vlocity_ins__ProviderNetwork__c.Healthcare_Provider__c</members>
+		<members>vlocity_ins__ProviderNetwork__c.Network__c</members>
+		<name>CustomField</name>
+	</types>
+	<types>
+		<members>Credential__c</members>
+		<members>Provider_Compliance_Issues__c</members>
+		<members>Service_Location__c</members>
+		<name>CustomObject</name>
+	</types>
+	<types>
+		<members>Credential__c</members>
+		<members>Provider_Compliance_Issues__c</members>
+		<members>Service_Location__c</members>
+		<name>CustomTab</name>
+	</types>
+	<types>
+		<members>Fetch_selected_credential_details</members>
+		<members>Get_Active_Provider_Contracts_Multiple</members>
+		<members>Get_Provider_Compliance_Issue</members>
+		<members>Get_Provider_Credentials_Multiple</members>
+		<members>Get_Provider_Network_multiple</members>
+		<members>Get_Provider_Service_Locations_Multiple</members>
+		<members>Search_Healthcare_Provider</members>
+		<name>Flow</name>
+	</types>
+	<types>
+		<members>Provider_Search_Service_Sunny_v1</members>
+		<name>GenAiPlannerBundle</name>
+	</types>
+	<types>
+		<members>Credential__c-Credential Layout</members>
+		<members>Provider_Compliance_Issues__c-Provider Compliance Issue Layout</members>
+		<members>Service_Location__c-Service Location Layout</members>
+		<name>Layout</name>
+	</types>
+	<types>
+		<members>Provider_Search_Agent_Access_Permission_Set</members>
+		<name>PermissionSet</name>
+	</types>
+	<version>67.0</version>
+</Package>

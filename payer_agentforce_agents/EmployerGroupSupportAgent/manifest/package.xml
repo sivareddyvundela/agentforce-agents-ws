@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+	<types>
+		<members>Employer_Agent_6</members>
+		<name>AiAuthoringBundle</name>
+	</types>
+	<types>
+		<members>EmployerInquiryAction</members>
+		<members>EmployerInquiryActionTest</members>
+		<members>EmployerVerificationAction</members>
+		<members>EmployerVerificationActionTest</members>
+		<name>ApexClass</name>
+	</types>
+	<types>
+		<members>Employer_Agent</members>
+		<name>Bot</name>
+	</types>
+	<types>
+		<members>Employer_Agent_v4</members>
+		<name>GenAiPlannerBundle</name>
+	</types>
+	<types>
+		<members>Employer_Agent_Permission_Set</members>
+		<name>PermissionSet</name>
+	</types>
+	<version>67.0</version>
+</Package>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+	<types>
+		<members>Claims_Issue_Agent_SJ_2</members>
+		<name>AiAuthoringBundle</name>
+	</types>
+	<types>
+		<members>Claims_Issue_Agent_SJ</members>
+		<name>Bot</name>
+	</types>
+	<types>
+		<members>Provider_Claims__c</members>
+		<name>CustomObject</name>
+	</types>
+	<types>
+		<members>Provider_Claims__c</members>
+		<name>CustomTab</name>
+	</types>
+	<types>
+		<members>Claim_Assistance_SJ</members>
+		<name>Flow</name>
+	</types>
+	<types>
+		<members>Claims_Issue_Agent_SJ_v2</members>
+		<name>GenAiPlannerBundle</name>
+	</types>
+	<types>
+		<members>Provider_Claims__c-Provider Claim Layout</members>
+		<name>Layout</name>
+	</types>
+	<types>
+		<members>Claims_Permission_Set_SJ</members>
+		<name>PermissionSet</name>
+	</types>
+	<version>67.0</version>
+</Package>

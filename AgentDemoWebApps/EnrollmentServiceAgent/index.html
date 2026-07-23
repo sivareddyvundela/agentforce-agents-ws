@@ -1,0 +1,72 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>healthEdge AI - Enrollment Services</title>
+<link rel="stylesheet" href="assets/css/style.css">
+
+<div class="split-screen">
+
+  <section class="panel panel-marketing">
+    <div class="marketing-inner">
+      <div class="brand-mark">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        healthEdge <span class="brand-accent">AI</span>
+      </div>
+
+      <p class="eyebrow">Enrollment Service Agent</p>
+      <h1 class="hero-heading">Coverage changes,<br> handled in a single conversation.</h1>
+      <p class="hero-subheading">
+        Members can add or remove a dependent, get a trackable Issue Id, and escalate to a
+        live representative — all without waiting on hold. Voice or chat, your choice.
+      </p>
+
+      <div class="badge-row">
+        <!-- badges rendered by app.js from data.js -->
+      </div>
+
+      <div class="try-asking-card">
+        <p class="try-asking-title">Try asking&hellip;</p>
+        <ul class="try-asking-list">
+          <!-- prompts rendered by app.js from data.js -->
+        </ul>
+      </div>
+
+      <p class="marketing-footer">Powered by Salesforce Agentforce</p>
+    </div>
+  </section>
+
+  <section class="panel panel-login">
+    <div class="login-card">
+      <div class="login-wordmark">
+        healthEdge <span class="brand-accent">AI</span>
+      </div>
+      <p class="login-subtitle">Enrollment Service Agent</p>
+
+      <form id="loginForm" novalidate>
+        <label class="field-label" for="username">Username</label>
+        <input class="field-input" type="text" id="username" name="username" autocomplete="username" required>
+
+        <label class="field-label" for="password">Password</label>
+        <input class="field-input" type="password" id="password" name="password" autocomplete="current-password" required>
+
+        <p id="loginError" class="login-error" hidden>Invalid credentials. Please use the demo credentials shown above.</p>
+
+        <button type="submit" class="btn-primary btn-signin">Sign In</button>
+      </form>
+
+      <div class="demo-creds-box">
+        <p class="demo-creds-title">Demo Credentials</p>
+        <p class="demo-creds-row"><span>Username</span><code>member.portal</code></p>
+        <p class="demo-creds-row"><span>Password</span><code>Demo@123</code></p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>

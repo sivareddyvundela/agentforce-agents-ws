@@ -1,0 +1,28 @@
+{
+  "required" : [ "dateOfBirth", "memberName", "phoneNumber" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "dateOfBirth" : {
+      "title" : "Date of Birth",
+      "description" : "Member date of birth (YYYY-MM-DD)",
+      "lightning:type" : "lightning__dateType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "memberName" : {
+      "title" : "Member Name",
+      "description" : "Full name of the member to verify",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "phoneNumber" : {
+      "title" : "Phone Number",
+      "description" : " phone number",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}
