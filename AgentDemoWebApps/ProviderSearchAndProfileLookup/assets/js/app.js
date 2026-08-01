@@ -77,6 +77,7 @@
       if (username === creds.username && password === creds.password) {
         sessionStorage.setItem("heAI_authenticated", "true");
         sessionStorage.setItem("heAI_agent", "ProviderSearchAndProfileLookup");
+        sessionStorage.setItem("heAI_username", username);
         window.location.href = "dashboard.html";
       } else {
         showError("Invalid credentials. Please use the demo credentials shown above.");
@@ -130,6 +131,7 @@
       signOutBtn.addEventListener("click", function () {
         sessionStorage.removeItem("heAI_authenticated");
         sessionStorage.removeItem("heAI_agent");
+        sessionStorage.removeItem("heAI_username");
         window.location.href = "index.html";
       });
     }

@@ -7,10 +7,12 @@ A 12-agent Salesforce Agentforce portfolio spanning provider network, claims, cr
 - [Project Structure](#project-structure)
 - [Agent Portfolio](#agent-portfolio) — all 12 Agentforce agents, what they do, and how to deploy them
 - [Demo Web Apps](#demo-web-apps) — all 12 healthEdge AI pre-sales demo sites, login credentials, and how to run them
+- [Live Deployments](#live-deployments) — public Vercel URLs for all 12 demos, and which have a live Agentforce agent wired in
 - [Executive Presentation](#executive-presentation)
 - [Quick Start](#quick-start)
 - [Common Architecture Pattern](#common-architecture-pattern)
 - [Known Gaps & Notes](#known-gaps--notes)
+- [`ADMIN.md`](ADMIN.md) — Vercel deployment machine setup and process (separate file)
 
 ## Project Structure
 
@@ -104,6 +106,42 @@ vercel --prod
 ```
 
 No build step or configuration is required (each folder ships a zero-config `vercel.json`). To wire up the real agent, paste the Agentforce embedded-service `<script>` tag into the commented placeholder block at the bottom of that folder's `dashboard.html`.
+
+For one-time machine setup (CLI install, npm permission fixes, login) and the full deployment/verification process, see [`ADMIN.md`](ADMIN.md).
+
+## Live Deployments
+
+All 12 demos are deployed and publicly reachable (Vercel SSO deployment protection, which is on by default for new projects on this account, was explicitly disabled per project so these links work without a Vercel login).
+
+| Agent | Live URL | Demo Login | Agentforce Agent |
+| --- | --- | --- | --- |
+| Provider Contract Inquiry | [heai-provider-contract-enquiry.vercel.app](https://heai-provider-contract-enquiry.vercel.app) | `contract.analyst` / `Demo@123` | Not yet wired (placeholder) |
+| Enrollment Service | [heai-enrollment-service.vercel.app](https://heai-enrollment-service.vercel.app) | `member.portal` / `Demo@123` | Live |
+| Provider Search & Profile Lookup | [heai-provider-search-profile.vercel.app](https://heai-provider-search-profile.vercel.app) | `network.ops` / `Demo@123` | Live |
+| Provider Network Inquiries | [heai-provider-network-support.vercel.app](https://heai-provider-network-support.vercel.app) | `provider.rep` / `Demo@123` | Live |
+| Employer Group Support | [heai-employer-group-support.vercel.app](https://heai-employer-group-support.vercel.app) | `employer.admin` / `Demo@123` | Live |
+| Provider Enrollment | [heai-provider-enrollment.vercel.app](https://heai-provider-enrollment.vercel.app) | `enrollment.specialist` / `Demo@123` | Not yet wired (placeholder) |
+| Credentialing Status | [heai-credentialing-status.vercel.app](https://heai-credentialing-status.vercel.app) | `credentialing.analyst` / `Demo@123` | Not yet wired (placeholder) |
+| Network Participation Verification | [heai-network-participation.vercel.app](https://heai-network-participation.vercel.app) | `network.ops` / `Demo@123` | Not yet wired (placeholder) |
+| Provider Claims Assistance | [heai-provider-claims.vercel.app](https://heai-provider-claims.vercel.app) | `claims.support` / `Demo@123` | Live |
+| Provider Issue Management | [heai-provider-issue-mgmt.vercel.app](https://heai-provider-issue-mgmt.vercel.app) | `support.rep` / `Demo@123` | Live |
+| Provider Termination | [heai-provider-termination.vercel.app](https://heai-provider-termination.vercel.app) | `network.ops.admin` / `Demo@123` | Live |
+| Member Benefits and Eligibility | [heai-benefits-eligibility.vercel.app](https://heai-benefits-eligibility.vercel.app) | `member.portal.user` / `Demo@123` | Not yet wired (placeholder) |
+
+**"Live" means:** the real Agentforce embedded-service snippet (per [`prompt.md`](prompt.md) Phase 5) is deployed in that site's `dashboard.html`, gated behind login, present across every tab, and passing the logged-in user's identity via hidden prechat fields. Note: Enrollment Service intentionally points at the same Salesforce deployment as Provider Network Inquiries (`HealthBridge_Provider_Network`) — confirmed, not a mistake.
+
+**What was validated (automated, HTTP-level) vs. not:**
+- ✅ Confirmed for all 12: login page and dashboard both return `200`, all CSS/JS assets resolve, no SSO login wall.
+- ✅ Confirmed for the 7 "Live" sites: the production HTML contains the correct, agent-specific embedded-service deployment name (no cross-wiring between agents).
+- ❌ **Not verified**: actual runtime activation of the chat widget in a real browser (it loads asynchronously and can take a few seconds to become interactive) — this environment has no browser automation tool available, only HTTP fetches.
+
+**Bug found via manual check and fixed (2026-08-01):** a real user screenshot of the deployed Enrollment Service site caught that the chat widget never activated — the launcher did nothing, and the old static stub panel ("This is where the live Agentforce agent will appear once embedded") was still showing. Root cause: all 7 "Live" sites called `embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields()` *before* `.init()` inside the same `try` block; `prechatAPI` isn't populated until after `.init()` resolves, so that call threw, the `catch` swallowed it silently, and `.init()` — queued after it — never ran. Fixed on all 7 by moving the hidden-field call into a `window.addEventListener('onEmbeddedMessagingReady', ...)` handler placed after `.init()`, and removed the now-redundant stub launcher/panel HTML (the real widget renders its own launcher once `.init()` succeeds). Redeployed and confirmed the fix is live on all 7 production URLs above. **This is exactly the kind of runtime-only bug the automated HTTP checks above cannot catch** — please still manually log into at least one "Live" site and confirm the chat launcher opens a working conversation before treating these as demo-ready for a prospect.
+
+**Known remaining step (Salesforce Setup, not fixable from this repo):** even with the above fixed, the widget won't render on a Vercel domain until **two separate** Salesforce Setup changes are made per site — easy to do only one and still see a broken widget:
+1. **CORS Allowed Origins** — add the Vercel domain so `embedded-service-config`/`businesshours` calls succeed.
+2. **Clickjack Protection** (Setup → Sites → the specific site → allowed-domains list — a different page from CORS) — add the Vercel domain so the site can be embedded/iframed at all.
+
+Confirmed via DevTools on the Enrollment Service demo (2026-08-01): after fixing #1 alone, config calls succeeded (200/204) but the widget still didn't render — Console showed `Framing '...' violates ... "frame-ancestors <domain list>". The request has been blocked.` Fixing #2 (adding the Vercel domain to that site's Clickjack Protection allowed domains) resolved it end-to-end, confirmed live by the user. The other 6 "Live" agents' sites still need both changes applied — see [`prompt.md`](prompt.md) Phase 5 for the full per-agent site list and exact Setup navigation.
 
 ## Executive Presentation
 

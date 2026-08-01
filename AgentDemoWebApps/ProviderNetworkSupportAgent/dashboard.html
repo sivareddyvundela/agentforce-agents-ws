@@ -119,34 +119,72 @@
   </div>
 </div>
 
-<!-- ===================== FLOATING CHAT LAUNCHER ===================== -->
-<button class="chat-launcher" id="chatLauncher" aria-label="Open Agentforce chat">
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-    <path d="M4 5H20V16H8L4 20V5Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
-    <circle cx="9" cy="10.5" r="1" fill="white"/>
-    <circle cx="12" cy="10.5" r="1" fill="white"/>
-    <circle cx="15" cy="10.5" r="1" fill="white"/>
-  </svg>
-</button>
-
-<div class="chat-stub-panel" id="chatStubPanel" hidden>
-  <div class="chat-stub-header">
-    <span>Agentforce Chat</span>
-    <button id="chatStubClose" aria-label="Close chat panel">&times;</button>
-  </div>
-  <div class="chat-stub-body">
-    <p>This is where the live Agentforce agent will appear once embedded.</p>
-  </div>
-</div>
+<!-- The floating chat launcher used to be a static stub here. Now that
+     the real Agentforce embed is wired in below, its own launcher
+     button renders itself once embeddedservice_bootstrap.init()
+     succeeds — keeping the old stub button/panel around would show
+     two overlapping chat launchers. -->
 
 <script src="assets/js/data.js"></script>
 <script src="assets/js/app.js"></script>
 
 <!-- ============================================================
      AGENTFORCE EMBED SCRIPT
-     Paste the Agentforce Agent embedded-service bootstrap script
-     here to enable the live chat experience for this demo.
+     Loads only for authenticated sessions (guarded by the same
+     heAI_authenticated flag app.js checks on this page), and passes
+     the logged-in provider's identity to the agent via hidden
+     prechat fields before init.
      ============================================================ -->
-<!-- <script src="REPLACE_WITH_AGENTFORCE_EMBED_SCRIPT_URL"></script> -->
+<script type="text/javascript">
+ if (sessionStorage.getItem('heAI_authenticated') === 'true') {
+  function initEmbeddedMessaging() {
+   try {
+    embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+
+    embeddedservice_bootstrap.init(
+     '00DHs00000TTGXG',
+     'HealthBridge_Provider_Network',
+     'https://wi1778260356875.my.site.com/ESWHealthBridgeProvider1784728390106',
+     {
+      scrt2URL: 'https://wi1778260356875.my.salesforce-scrt.com'
+     }
+    );
+   } catch (err) {
+    console.error('Error loading Embedded Messaging: ', err);
+   }
+  }
+
+  // Pass the logged-in provider's identity to the agent once the SDK is
+  // ready. setHiddenPrechatFields must run after init() resolves, not
+  // before — calling it earlier throws (prechatAPI isn't populated yet),
+  // which previously aborted init() itself since both calls shared one
+  // try block.
+  // NOTE: these hidden-field developer names must match the Hidden
+  // Prechat Fields configured on this Embedded Service Deployment in
+  // Setup (HealthBridge_Provider_Network) — adjust the keys below if
+  // yours differ.
+  window.addEventListener('onEmbeddedMessagingReady', function () {
+   try {
+    if (typeof heAI_DATA !== 'undefined' && heAI_DATA.provider) {
+     embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
+      ProviderName: heAI_DATA.provider.name,
+      NPI: heAI_DATA.provider.npi,
+      Phone: heAI_DATA.provider.phone,
+      Email: heAI_DATA.provider.email,
+      TaxId: heAI_DATA.provider.taxId
+     });
+    }
+   } catch (err) {
+    console.error('Error setting hidden prechat fields: ', err);
+   }
+  });
+
+  var eswScript = document.createElement('script');
+  eswScript.type = 'text/javascript';
+  eswScript.src = 'https://wi1778260356875.my.site.com/ESWHealthBridgeProvider1784728390106/assets/js/bootstrap.min.js';
+  eswScript.onload = initEmbeddedMessaging;
+  document.body.appendChild(eswScript);
+ }
+</script>
 </body>
 </html>
